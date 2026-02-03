@@ -11,3 +11,9 @@ Route::get('/user', function (Request $request) {
 Route::get('workout-sets', [WorkoutSetController::class, 'index']);
 
 Route::get('workout-sets/{id}', [WorkoutSetController::class, 'show']);
+
+Route::put('workout-sets/{id}', [WorkoutSetController::class, 'update']);
+
+Route::post('workout-sets', [WorkoutSetController::class, 'store']);
+
+Route::delete('workout-sets/{id}', action: [WorkoutSetController::class, 'destroy']);

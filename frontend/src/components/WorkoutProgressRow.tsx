@@ -25,11 +25,8 @@ export default function WorkoutProgressRow({
   };
 
   return (
-    <div className="border-b">
-      <label
-        key={exercise.id}
-        className="flex items-center gap-3 px-4 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
-      >
+    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <label className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
         {/* Radio-style checkbox */}
         <div className="relative flex-shrink-0">
           <input
@@ -44,11 +41,11 @@ export default function WorkoutProgressRow({
         </div>
 
         {/* Exercise details */}
-        <div className="flex items-center gap-4 flex-1 flex-wrap">
-          <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+        <div className="flex items-center gap-3 flex-1">
+          <span className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-md">
             {exercise.weight} lbs
           </span>
-          <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+          <span className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-md">
             {exercise.reps} reps
           </span>
         </div>

@@ -19,4 +19,90 @@ class WorkoutSetController extends Controller
     {
         return WorkoutSet::with('exercises')->findOrFail($id);
     }
+
+    public function store(Request $request)
+    {
+        try {
+            // Validate incoming JSON
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'description' => ['nullable', 'string'],
+            ]);
+
+            //  Save to database
+            $workoutSet = WorkoutSet::create($validated);
+
+            //  Success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Workout set created successfully',
+                'data' => new WorkoutSetResrource($workoutSet),
+            ], 201);
+        } catch (\Throwable $e) {
+            // Failure response (unexpected errors)
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create workout set',
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            // Validate incoming JSON
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'description' => ['nullable', 'string'],
+            ]);
+
+            // Find the workout set or fail
+            $workoutSet = WorkoutSet::findOrFail($id);
+
+            // Update the database
+            $workoutSet->update($validated);
+
+            // Success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Workout set updated successfully',
+                'data' => new WorkoutSetResrource($workoutSet),
+            ], 200);
+        } catch (\Throwable $e) {
+            // Failure response (unexpected errors)
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update workout set',
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            // Find the workout set or fail
+            $workoutSet = WorkoutSet::findOrFail($id);
+
+            // Delete it
+            $workoutSet->delete();
+
+            // Success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Workout set deleted successfully',
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // If not found
+            return response()->json([
+                'success' => false,
+                'message' => 'Workout set not found',
+            ], 404);
+        } catch (\Throwable $e) {
+            // Any other errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete workout set',
+            ], 500);
+        }
+    }
 }
