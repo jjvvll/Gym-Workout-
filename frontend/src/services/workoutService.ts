@@ -1,14 +1,22 @@
 import api from "../api/axios"; // Axios instance
 
+export interface ExerciseInstance {
+  id: number;
+  exercise_id: number;
+  weight: number | null;
+  weight_unit: string;
+  reps: number | null;
+  sets: number | null;
+}
+
 // TypeScript types (optional)
 export interface Exercise {
   id: number;
   name: string;
   description: string | null;
-  weight: number | null;
-  reps: number | null;
-  sets: number | null;
+
   restTime: number;
+  instances: ExerciseInstance[];
 }
 
 export interface WorkoutSet {

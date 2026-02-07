@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\WorkoutSetResrource;
+use App\Http\Resources\WorkoutSetResource;
 use App\Models\WorkoutSet;
 use Illuminate\Http\Request;
 
@@ -12,12 +12,12 @@ class WorkoutSetController extends Controller
     public function index()
     {
         // Returns all workout sets with exercises
-        return WorkoutSetResrource::collection(WorkoutSet::with('exercises')->get());
+        return WorkoutSetResource::collection(WorkoutSet::with('exercises.instances')->get());
     }
 
     public function show($id)
     {
-        return WorkoutSet::with('exercises')->findOrFail($id);
+        return WorkoutSet::with('exercises.instances')->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -36,7 +36,7 @@ class WorkoutSetController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Workout set created successfully',
-                'data' => new WorkoutSetResrource($workoutSet),
+                'data' => new WorkoutSetResource($workoutSet),
             ], 201);
         } catch (\Throwable $e) {
             // Failure response (unexpected errors)

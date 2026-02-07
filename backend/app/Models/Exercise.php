@@ -9,10 +9,15 @@ class Exercise extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['workout_set_id', 'name', 'description', 'weight', 'restTime', 'reps', 'sets'];
+    protected $fillable = ['workout_set_id', 'name', 'description',   'restTime',];
 
     public function workoutSet()
     {
         return $this->belongsTo(WorkoutSet::class);
+    }
+
+    public function instances()
+    {
+        return $this->hasMany(ExerciseInstance::class);
     }
 }

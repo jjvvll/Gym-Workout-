@@ -60,32 +60,40 @@ export default function HomePage() {
   if (error) return <p className="p-6 text-red-500">{error}</p>;
 
   return (
-    <div className="bg-gray-200 min-h-screen p-6">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Gym Workouts</h1>
-        <div className="p-6">
+    <div className="bg-gray-50 min-h-screen">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Header */}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800">
+            Gym Workouts
+          </h1>
+        </div>
+
+        {/* Add button */}
+        <div className="mb-6">
           <button
             onClick={() => setModalOpen(true)}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            className="w-full sm:w-auto bg-green-500 text-white px-6 py-3 sm:py-2.5 rounded-lg hover:bg-green-600 active:bg-green-700 transition-colors text-base sm:text-sm font-medium shadow-sm"
           >
-            Add Workout Set
+            + Add Workout Set
           </button>
         </div>
 
-        <div className="space-y-4">
+        {/* Workout cards - Grid layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
           {workouts.map((set) => (
             <div
               key={set.id}
-              className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+              className="relative bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden group"
             >
-              {/* Edit and Delete buttons container */}
-              <div className="absolute top-2 right-2 flex gap-2">
+              {/* Edit and Delete buttons */}
+              <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => {
                     setModalOpen(true);
                     setWorkoutToEdit(set);
                   }}
-                  className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                  className="px-3 py-1.5 bg-blue-500 text-white text-xs sm:text-sm rounded-md hover:bg-blue-600 active:bg-blue-700 transition-colors shadow-sm"
                 >
                   Edit
                 </button>
@@ -94,7 +102,7 @@ export default function HomePage() {
                   onClick={() => {
                     handleDelete(set.id);
                   }}
-                  className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors duration-200"
+                  className="px-3 py-1.5 bg-red-500 text-white text-xs sm:text-sm rounded-md hover:bg-red-600 active:bg-red-700 transition-colors shadow-sm"
                 >
                   Delete
                 </button>
@@ -102,7 +110,7 @@ export default function HomePage() {
 
               {/* Workout card clickable */}
               <div
-                className="cursor-pointer"
+                className="cursor-pointer p-4 sm:p-5 pr-3 sm:pr-5 hover:bg-gray-50 transition-colors"
                 onClick={() =>
                   navigate(`/workouts/${set.id}`, {
                     state: { workout: set },
@@ -118,7 +126,7 @@ export default function HomePage() {
         <WorkoutSetModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
-          onCreated={handleUpdatedWorkout} // can handle create or edit
+          onCreated={handleUpdatedWorkout}
           workoutToEdit={workoutToEdit}
           setWorkoutToEdit={setWorkoutToEdit}
         />
