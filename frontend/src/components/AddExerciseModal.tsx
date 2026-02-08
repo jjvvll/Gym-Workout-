@@ -1,0 +1,211 @@
+import { useState } from "react";
+
+interface AddExerciseModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: {
+    name: string;
+    description: string;
+    restTime: number;
+  }) => Promise<void>;
+  workoutSetId: number;
+}
+
+export default function AddExerciseModal({
+  isOpen,
+  onClose,
+  onSave,
+}: AddExerciseModalProps) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [minutes, setMinutes] = useState("1");
+  const [seconds, setSeconds] = useState("0");
+  const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; restTime?: string }>(
+    {},
+  );
+
+  const handleMinutesChange = (value: string) => {
+    if (value === "" || /^\d+$/.test(value)) {
+      setMinutes(value);
+      setErrors((prev) => ({ ...prev, restTime: undefined }));
+    }
+  };
+
+  const handleSecondsChange = (value: string) => {
+    if (value === "" || (/^\d+$/.test(value) && parseInt(value) < 60)) {
+      setSeconds(value);
+      setErrors((prev) => ({ ...prev, restTime: undefined }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: { name?: string; restTime?: string } = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Exercise name is required";
+    }
+
+    const totalSeconds =
+      (parseInt(minutes) || 0) * 60 + (parseInt(seconds) || 0);
+    if (totalSeconds <= 0) {
+      newErrors.restTime = "Rest time must be greater than 0";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) return;
+
+    const totalSeconds =
+      (parseInt(minutes) || 0) * 60 + (parseInt(seconds) || 0);
+
+    setIsSaving(true);
+    try {
+      await onSave({
+        name: name.trim(),
+        description: description.trim(),
+        restTime: totalSeconds,
+      });
+      handleClose();
+    } catch (error) {
+      console.error("Failed to add exercise", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleClose = () => {
+    // Reset form
+    setName("");
+    setDescription("");
+    setMinutes("1");
+    setSeconds("0");
+    setErrors({});
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0  bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
+          <h2 className="text-xl font-bold text-gray-800">Add Exercise</h2>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 py-4 space-y-5">
+          {/* Exercise Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Exercise Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrors((prev) => ({ ...prev, name: undefined }));
+              }}
+              placeholder="e.g., Bench Press"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.name ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add notes or instructions..."
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            />
+          </div>
+
+          {/* Rest Time */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Rest Time <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center gap-2">
+              {/* Minutes */}
+              <div className="flex-1">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={minutes}
+                  onChange={(e) => handleMinutesChange(e.target.value)}
+                  className={`w-full px-4 py-2 text-center text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.restTime ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="0"
+                />
+                <p className="text-xs text-gray-500 text-center mt-1">
+                  Minutes
+                </p>
+              </div>
+
+              <span className="text-2xl font-bold text-gray-400">:</span>
+
+              {/* Seconds */}
+              <div className="flex-1">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={seconds}
+                  onChange={(e) => handleSecondsChange(e.target.value)}
+                  className={`w-full px-4 py-2 text-center text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.restTime ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="0"
+                  maxLength={2}
+                />
+                <p className="text-xs text-gray-500 text-center mt-1">
+                  Seconds
+                </p>
+              </div>
+            </div>
+            {errors.restTime && (
+              <p className="text-red-500 text-sm mt-1">{errors.restTime}</p>
+            )}
+            <p className="text-sm text-gray-600 mt-2 text-center">
+              Total: {(parseInt(minutes) || 0) * 60 + (parseInt(seconds) || 0)}{" "}
+              seconds
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3">
+          <button
+            onClick={handleClose}
+            disabled={isSaving}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 font-medium"
+          >
+            {isSaving ? "Adding..." : "Add Exercise"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -54,7 +54,7 @@ export default function WorkoutProgressRow({
       const res = await updateExercise(exerciseInstance.id, payload);
 
       if (res.success && res.data) {
-        setWeight(res.data.reps ?? reps);
+        setReps(res.data.reps ?? reps);
       }
 
       setIsEditingReps(false);

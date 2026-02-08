@@ -26,3 +26,5 @@ Route::delete('exercises/{exerciseId}/instances/latest', [ExerciseInstanceContro
 Route::put(uri: 'exercise/instances/{id}', action: [ExerciseInstanceController::class, 'update']);
 
 Route::put('exercises/{exerciseId}/rest-time', [ExerciseController::class, 'updateRestTime']);
+Route::post('workout-sets/{workoutSetId}/exercise', [ExerciseController::class, 'store']);
+Route::delete('exercises/{exerciseId}', [ExerciseController::class, 'destroy']);

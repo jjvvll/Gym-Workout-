@@ -66,7 +66,7 @@ class WorkoutSetController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Workout set updated successfully',
-                'data' => new WorkoutSetResrource($workoutSet),
+                'data' => new WorkoutSetResource($workoutSet),
             ], 200);
         } catch (\Throwable $e) {
             // Failure response (unexpected errors)

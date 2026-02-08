@@ -1,5 +1,5 @@
 import api from "../api/axios"; // Axios instance
-import type { ExerciseInstance } from "./workoutService";
+import type { ExerciseInstance, Exercise } from "./workoutService";
 
 export type AddSetResponse<T = undefined> = {
   success: boolean;
@@ -11,6 +11,12 @@ export type setUpdateExercise = {
   action: "weight" | "reps";
   weight?: number;
   reps?: number;
+};
+
+export type newExercise = {
+  name: string;
+  description?: string;
+  restTime: number;
 };
 
 export const addExerciseInstance = async (
@@ -46,5 +52,23 @@ export const updateExerciseRestTime = async (
   const response = await api.put(`/exercises/${exerciseId}/rest-time`, {
     restTime,
   });
+  return response.data;
+};
+
+export const addExercise = async (
+  workoutSetId: number,
+  payload: newExercise,
+): Promise<AddSetResponse<Exercise>> => {
+  const response = await api.post(
+    `workout-sets/${workoutSetId}/exercise`,
+    payload,
+  );
+  return response.data;
+};
+
+export const deleteExercise = async (
+  exerciseId: number,
+): Promise<AddSetResponse> => {
+  const response = await api.delete(`exercises/${exerciseId}`);
   return response.data;
 };
