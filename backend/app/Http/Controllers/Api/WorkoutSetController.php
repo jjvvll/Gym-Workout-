@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\WorkoutSetResource;
 use App\Models\WorkoutSet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class WorkoutSetController extends Controller
 {
@@ -28,6 +29,12 @@ class WorkoutSetController extends Controller
                 'name' => ['required', 'string', 'max:255'],
                 'description' => ['nullable', 'string'],
             ]);
+
+            // // Get the authenticated user's ID
+            // $userId = Auth::id();  // Returns the user ID
+
+            // // Add user_id to the data
+            // $validated['user_id'] = $userId;
 
             //  Save to database
             $workoutSet = WorkoutSet::create($validated);

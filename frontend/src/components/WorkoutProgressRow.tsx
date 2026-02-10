@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Exercise, ExerciseInstance } from "../services/workoutService";
 import TimerPopup from "./TimerPopup";
 import { updateExercise } from "../services/exerciseService";
@@ -16,6 +16,7 @@ export default function WorkoutProgressRow({
   // Track checked exercises locally
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [showTimer, setShowTimer] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState(restTime);
 
   // --- weight state ---
   const [isEditingWeight, setIsEditingWeight] = useState(false);
@@ -70,8 +71,30 @@ export default function WorkoutProgressRow({
     }
   };
 
+  useEffect(() => {
+    if (!showTimer) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleCloseTimer();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showTimer]);
+
   const handleCloseTimer = () => {
+    setTimeLeft(restTime);
     setShowTimer(false);
+
+    // play notification sound
+    const audio = new Audio("/sounds/notification-sound.mp3");
+    audio.play().catch((err) => console.log("Audio failed:", err));
   };
 
   return (
@@ -148,7 +171,11 @@ export default function WorkoutProgressRow({
       </div>
 
       {showTimer && (
-        <TimerPopup restTime={restTime} onClose={handleCloseTimer} />
+        <TimerPopup
+          restTime={restTime}
+          timeLeft={timeLeft}
+          onClose={handleCloseTimer}
+        />
       )}
     </div>
   );

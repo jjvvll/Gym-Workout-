@@ -1,26 +1,10 @@
-import { useState, useEffect } from "react";
-
 interface TimerPopupProps {
   restTime: number;
+  timeLeft: number;
   onClose: () => void;
 }
 
-const TimerPopup = ({ restTime, onClose }: TimerPopupProps) => {
-  const [timeLeft, setTimeLeft] = useState(restTime);
-
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      onClose();
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, onClose]);
-
+const TimerPopup = ({ restTime, timeLeft, onClose }: TimerPopupProps) => {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 

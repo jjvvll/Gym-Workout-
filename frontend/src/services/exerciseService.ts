@@ -22,7 +22,7 @@ export type newExercise = {
 export const addExerciseInstance = async (
   exerciseId: number,
 ): Promise<AddSetResponse<ExerciseInstance>> => {
-  const response = await api.post(`/exercises/${exerciseId}/instances`);
+  const response = await api.post(`/api/exercises/${exerciseId}/instances`);
   return response.data;
 };
 
@@ -30,7 +30,7 @@ export const removeLatestExerciseInstance = async (
   exerciseId: number,
 ): Promise<AddSetResponse<null>> => {
   const response = await api.delete(
-    `/exercises/${exerciseId}/instances/latest`,
+    `/api/exercises/${exerciseId}/instances/latest`,
   );
   return response.data;
 };
@@ -40,7 +40,7 @@ export const updateExercise = async (
   id: number,
   payload: setUpdateExercise,
 ): Promise<AddSetResponse<Partial<ExerciseInstance>>> => {
-  const response = await api.put(`/exercise/instances/${id}`, payload);
+  const response = await api.put(`/api/exercise/instances/${id}`, payload);
   return response.data;
 };
 
@@ -49,7 +49,7 @@ export const updateExerciseRestTime = async (
   exerciseId: number,
   restTime: number,
 ): Promise<AddSetResponse> => {
-  const response = await api.put(`/exercises/${exerciseId}/rest-time`, {
+  const response = await api.put(`/api/exercises/${exerciseId}/rest-time`, {
     restTime,
   });
   return response.data;
@@ -60,7 +60,7 @@ export const addExercise = async (
   payload: newExercise,
 ): Promise<AddSetResponse<Exercise>> => {
   const response = await api.post(
-    `workout-sets/${workoutSetId}/exercise`,
+    `/api/workout-sets/${workoutSetId}/exercise`,
     payload,
   );
   return response.data;
@@ -69,6 +69,6 @@ export const addExercise = async (
 export const deleteExercise = async (
   exerciseId: number,
 ): Promise<AddSetResponse> => {
-  const response = await api.delete(`exercises/${exerciseId}`);
+  const response = await api.delete(`/api/exercises/${exerciseId}`);
   return response.data;
 };

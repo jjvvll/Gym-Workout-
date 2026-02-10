@@ -44,13 +44,13 @@ export type DeleteResponse = {
 
 // Fetch all workout sets with exercises
 export const getWorkoutSets = async (): Promise<WorkoutSet[]> => {
-  const response = await api.get("/workout-sets");
+  const response = await api.get("/api/workout-sets");
   return response.data.data;
 };
 
 // Fetch a single workout set by ID
 export const getWorkoutSetById = async (id: number): Promise<WorkoutSet> => {
-  const response = await api.get(`/workout-sets/${id}`);
+  const response = await api.get(`/api/workout-sets/${id}`);
   return response.data;
 };
 
@@ -58,7 +58,7 @@ export const getWorkoutSetById = async (id: number): Promise<WorkoutSet> => {
 export const storeWorkoutSet = async (
   payload: StoreWorkoutSetPayload,
 ): Promise<ApiResponse<WorkoutSet>> => {
-  const response = await api.post("/workout-sets", payload);
+  const response = await api.post("/api/workout-sets", payload);
   return response.data;
 };
 
@@ -67,11 +67,11 @@ export const updateWorkoutSet = async (
   id: number,
   payload: StoreWorkoutSetPayload,
 ): Promise<ApiResponse<WorkoutSet>> => {
-  const response = await api.put(`/workout-sets/${id}`, payload);
+  const response = await api.put(`/api/workout-sets/${id}`, payload);
   return response.data;
 };
 
 export const deleteWorkoutSet = async (id: number): Promise<DeleteResponse> => {
-  const response = await api.delete(`/workout-sets/${id}`);
+  const response = await api.delete(`/api/workout-sets/${id}`);
   return response.data;
 };

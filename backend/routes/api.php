@@ -3,28 +3,41 @@
 use App\Http\Controllers\Api\ExerciseController;
 use App\Http\Controllers\Api\ExerciseInstanceController;
 use App\Http\Controllers\Api\WorkoutSetController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RegisterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// })->middleware('auth:sanctum');
 
-Route::get('workout-sets', [WorkoutSetController::class, 'index']);
+// Public routes (no authentication required)
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('workout-sets/{id}', [WorkoutSetController::class, 'show']);
+// Registration
+Route::post('/register', [RegisterController::class, 'register']);
 
-Route::put('workout-sets/{id}', [WorkoutSetController::class, 'update']);
+// Protected routes (require authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    // Auth routes
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
 
-Route::post('workout-sets', [WorkoutSetController::class, 'store']);
+    // Workout Sets
+    Route::get('/workout-sets', [WorkoutSetController::class, 'index']);
+    Route::get('/workout-sets/{id}', [WorkoutSetController::class, 'show']);
+    Route::put('/workout-sets/{id}', [WorkoutSetController::class, 'update']);
+    Route::post('/workout-sets', [WorkoutSetController::class, 'store']);
+    Route::delete('/workout-sets/{id}', [WorkoutSetController::class, 'destroy']);
 
-Route::delete('workout-sets/{id}', action: [WorkoutSetController::class, 'destroy']);
+    // Exercise Instances
+    Route::post('/exercises/{exerciseId}/instances', [ExerciseInstanceController::class, 'store']);
+    Route::delete('/exercises/{exerciseId}/instances/latest', [ExerciseInstanceController::class, 'destroyLatest']);
+    Route::put('/exercise/instances/{id}', [ExerciseInstanceController::class, 'update']);
 
-
-Route::post('exercises/{exerciseId}/instances', [ExerciseInstanceController::class, 'store']);
-Route::delete('exercises/{exerciseId}/instances/latest', [ExerciseInstanceController::class, 'destroyLatest']);
-Route::put(uri: 'exercise/instances/{id}', action: [ExerciseInstanceController::class, 'update']);
-
-Route::put('exercises/{exerciseId}/rest-time', [ExerciseController::class, 'updateRestTime']);
-Route::post('workout-sets/{workoutSetId}/exercise', [ExerciseController::class, 'store']);
-Route::delete('exercises/{exerciseId}', [ExerciseController::class, 'destroy']);
+    // Exercises
+    Route::put('/exercises/{exerciseId}/rest-time', [ExerciseController::class, 'updateRestTime']);
+    Route::post('/workout-sets/{workoutSetId}/exercise', [ExerciseController::class, 'store']);
+    Route::delete('/exercises/{exerciseId}', [ExerciseController::class, 'destroy']);
+});

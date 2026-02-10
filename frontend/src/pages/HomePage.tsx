@@ -5,6 +5,7 @@ import WorkoutSetCard from "../components/WorkoutSetCard";
 import { useNavigate } from "react-router-dom";
 import { WorkoutSetModal } from "../components/WorkoutSetModal ";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function HomePage() {
   const [workouts, setWorkouts] = useState<WorkoutSet[]>([]);
@@ -14,6 +15,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -49,6 +51,16 @@ export default function HomePage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully");
+      navigate("/login");
+    } catch (error) {
+      toast.error("Logout failed");
+    }
+  };
+
   useEffect(() => {
     getWorkoutSets()
       .then((data) => setWorkouts(data))
@@ -62,11 +74,26 @@ export default function HomePage() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800">
-            Gym Workouts
-          </h1>
+        {/* Header with Welcome and Logout */}
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800">
+              Gym Workouts
+            </h1>
+            {user && (
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
+                Welcome back,{" "}
+                <span className="font-semibold text-gray-800">{user.name}</span>
+              </p>
+            )}
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="self-start sm:self-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 transition-colors shadow-sm"
+          >
+            Logout
+          </button>
         </div>
 
         {/* Add button */}
