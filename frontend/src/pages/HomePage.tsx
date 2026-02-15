@@ -35,6 +35,11 @@ export default function HomePage() {
     });
   };
 
+  const handleOpenModalForNewWorkout = () => {
+    setWorkoutToEdit(undefined); // clear old workout
+    setModalOpen(true); // open modal
+  };
+
   const handleDelete = async (id: number) => {
     try {
       const res = await deleteWorkoutSet(id);
@@ -99,7 +104,7 @@ export default function HomePage() {
         {/* Add button */}
         <div className="mb-6">
           <button
-            onClick={() => setModalOpen(true)}
+            onClick={handleOpenModalForNewWorkout}
             className="w-full sm:w-auto bg-green-500 text-white px-6 py-3 sm:py-2.5 rounded-lg hover:bg-green-600 active:bg-green-700 transition-colors text-base sm:text-sm font-medium shadow-sm"
           >
             + Add Workout Set
@@ -117,7 +122,7 @@ export default function HomePage() {
               <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => {
-                    setModalOpen(true);
+                    handleOpenModalForNewWorkout();
                     setWorkoutToEdit(set);
                   }}
                   className="px-3 py-1.5 bg-blue-500 text-white text-xs sm:text-sm rounded-md hover:bg-blue-600 active:bg-blue-700 transition-colors shadow-sm"

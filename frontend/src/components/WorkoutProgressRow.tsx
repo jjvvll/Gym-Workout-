@@ -18,6 +18,10 @@ export default function WorkoutProgressRow({
   const [showTimer, setShowTimer] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState(restTime);
 
+  useEffect(() => {
+    setTimeLeft(restTime);
+  }, [restTime]);
+
   // --- weight state ---
   const [isEditingWeight, setIsEditingWeight] = useState(false);
   const [weight, setWeight] = useState<number>(exerciseInstance.weight ?? 0);
