@@ -74,8 +74,6 @@ export const WorkoutSetModal = ({
 
       if (workoutToEdit) {
         // EDIT mode: call update API
-
-        console.log("edit");
         response = await updateWorkoutSet(workoutToEdit.id, payload);
       } else {
         // CREATE mode: call store API

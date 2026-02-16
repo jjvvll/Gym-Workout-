@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
-import { getWorkoutSets, deleteWorkoutSet } from "../services/workoutService";
+import {
+  getWorkoutSets,
+  deleteWorkoutSet,
+  generateWorkout,
+} from "../services/workoutService";
 import type { WorkoutSet } from "../services/workoutService";
 import WorkoutSetCard from "../components/WorkoutSetCard";
 import { useNavigate } from "react-router-dom";
 import { WorkoutSetModal } from "../components/WorkoutSetModal ";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import LoadingPopup from "../components/LoadingPopup";
 
 export default function HomePage() {
   const [workouts, setWorkouts] = useState<WorkoutSet[]>([]);
@@ -18,6 +23,8 @@ export default function HomePage() {
   const { user, logout } = useAuth();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [message, setMessage] = useState<string | undefined>(undefined);
 
   const handleUpdatedWorkout = (updatedWorkout: WorkoutSet) => {
     setWorkouts((prev) => {
@@ -71,9 +78,37 @@ export default function HomePage() {
       .then((data) => setWorkouts(data))
       .catch(() => setError("Failed to fetch workouts"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [refreshKey]);
 
-  if (loading) return <p className="p-6 text-gray-700">Loading...</p>;
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    setMessage(
+      "Generating custom workout using AI, this may take some time...",
+    );
+
+    try {
+      const payload = {
+        experience: "beginner",
+        goal: "build muscle",
+        weight: 70,
+        height: 175,
+        maxEffort: true,
+      };
+
+      const res = await generateWorkout(payload);
+
+      setRefreshKey((prev) => prev + 1); //refresh the list of workout sets
+      console.log("API Response:", res.data);
+      // setResponse(res.data);
+    } catch (err: any) {
+      console.error("API Error:", err.response?.data || err.message);
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (error) return <p className="p-6 text-red-500">{error}</p>;
 
   return (
@@ -163,6 +198,21 @@ export default function HomePage() {
           setWorkoutToEdit={setWorkoutToEdit}
         />
       </div>
+
+      <div className="flex justify-center">
+        <button
+          onClick={handleGenerate}
+          disabled={loading}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading && (
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          )}
+          {loading ? "Generating..." : "Generate Workout"}
+        </button>
+      </div>
+
+      <LoadingPopup isOpen={loading} message={message} />
     </div>
   );
 }

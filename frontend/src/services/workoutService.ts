@@ -75,3 +75,11 @@ export const deleteWorkoutSet = async (id: number): Promise<DeleteResponse> => {
   const response = await api.delete(`/api/workout-sets/${id}`);
   return response.data;
 };
+
+export const generateWorkout = async (
+  payload: any,
+): Promise<ApiResponse<WorkoutSet>> => {
+  const response = await api.post("/api/generate-workout", payload);
+
+  return response.data;
+};

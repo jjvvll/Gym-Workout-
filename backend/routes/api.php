@@ -18,6 +18,7 @@ Route::post('/login', [AuthController::class, 'login']);
 // Registration
 Route::post('/register', [RegisterController::class, 'register']);
 
+
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
@@ -30,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/workout-sets/{id}', [WorkoutSetController::class, 'update']);
     Route::post('/workout-sets', [WorkoutSetController::class, 'store']);
     Route::delete('/workout-sets/{id}', [WorkoutSetController::class, 'destroy']);
+    Route::post('/generate-workout', [WorkoutSetController::class, 'generate']);
 
     // Exercise Instances
     Route::post('/exercises/{exerciseId}/instances', [ExerciseInstanceController::class, 'store']);
