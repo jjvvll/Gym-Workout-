@@ -143,13 +143,6 @@ class WorkoutSetController extends Controller
             default          => ['sets' => 3, 'rest' => 90],
         };
 
-        $weightRange = match ($request->experience) {
-            'beginner'     => '5 to 20',
-            'intermediate' => '20 to 60',
-            'pro'          => '60 to 120',
-            default        => '10 to 40',
-        };
-
         $sets = $setsReps['sets'];
         $rest = $setsReps['rest'];
 
@@ -162,33 +155,45 @@ class WorkoutSetController extends Controller
         - Height: {$request->height}cm
         - Effort: {$effort}
 
-        You have full freedom to choose the best exercises, reps, and weights that suit this person's goal and experience. Be creative and make the plan genuinely effective.
+        You have full freedom to choose the best exercises, reps, and weights that suit this person's goal and experience. Be creative and make the plan genuinely effective. Choose weights that are realistic and challenging for someone at the {$request->experience} level.
 
-        Guidelines (not strict rules):
-        - Weight should generally be between {$weightRange}kg. Use 0 only for bodyweight exercises like push-ups or pull-ups.
-        - weight_unit is always kg.
+        Guidelines:
         - reps should never be 0. Choose reps that make sense for the goal.
         - rest time should make sense for the goal, around {$rest} seconds is a good starting point.
+        - weight_unit is always kg.
+
+        BODYWEIGHT EXERCISES — this is important:
+        Some exercises do not use added weight, like push-ups, pull-ups, dips, bodyweight squats, lunges, planks, burpees, and similar movements.
+        For these exercises you must set is_bodyweight_exercise to true on the exercise, and set weight to 0 in all its instances.
+        For all other exercises that use a barbell, dumbbell, cable, or machine, set is_bodyweight_exercise to false and choose a realistic weight in kg.
+
+        Correct bodyweight exercise example:
+        exercise: { name: \"Push-ups\", is_bodyweight_exercise: true, instances: [
+        { weight: 0, weight_unit: \"kg\", reps: 12, sets: 1 },
+        { weight: 0, weight_unit: \"kg\", reps: 12, sets: 1 },
+        { weight: 0, weight_unit: \"kg\", reps: 12, sets: 1 }
+        ]}
+
+        Correct weighted exercise example:
+        exercise: { name: \"Bench Press\", is_bodyweight_exercise: false, instances: [
+        { weight: 60, weight_unit: \"kg\", reps: 10, sets: 1 },
+        { weight: 65, weight_unit: \"kg\", reps: 8, sets: 1 },
+        { weight: 70, weight_unit: \"kg\", reps: 6, sets: 1 }
+        ]}
 
         THE ONLY STRICT RULE — instances:
         Each exercise must have exactly {$sets} instances in the instances array. Each instance represents one set. So {$sets} instances = {$sets} sets total.
-
-        Correct structure ({$sets} instances):
-        instances: [
-        { weight: 25, weight_unit: \"kg\", reps: 10, sets: 1 },
-        { weight: 27, weight_unit: \"kg\", reps: 8, sets: 1 },
-        { weight: 30, weight_unit: \"kg\", reps: 6, sets: 1 }
-        ]
 
         Wrong structure (only 1 instance — never do this):
         instances: [
         { weight: 25, weight_unit: \"kg\", reps: 10, sets: 3 }
         ]
 
-        Notice in the correct example the weights and reps can vary between instances — that is fine and encouraged. What must never change is that there are always exactly {$sets} instances.
+        This is wrong because there is only 1 instance. There must always be exactly {$sets} instances.
 
         Create exactly 4 workout days with exactly 4 exercises each.
-        Day names: Monday Push Day, Wednesday Pull Day, Friday Leg Day, Sunday Full Body Day.";
+        Day names: Monday Push Day, Wednesday Pull Day, Friday Leg Day, Sunday Full Body Day.
+        Remember: {$sets} instances per exercise, every time, no exceptions.";
 
         try {
             // // Call AI API (replace with your AI service)
@@ -232,6 +237,7 @@ class WorkoutSetController extends Controller
                                             'type' => 'object',
                                             'properties' => [
                                                 'name' => ['type' => 'string'],
+                                                'is_bodyweight_exercise' => ['type' => 'boolean'],
                                                 'description' => ['type' => 'string'],
                                                 'restTime' => ['type' => 'integer'],
                                                 'instances' => [
@@ -248,7 +254,7 @@ class WorkoutSetController extends Controller
                                                     ]
                                                 ]
                                             ],
-                                            'required' => ['name', 'description', 'restTime', 'instances']
+                                            'required' => ['name', 'is_bodyweight_exercise', 'description', 'restTime', 'instances']
                                         ]
                                     ]
                                 ],
@@ -276,6 +282,7 @@ class WorkoutSetController extends Controller
                         'name' => $exerciseData['name'],
                         'description' => $exerciseData['description'],
                         'restTime' => $exerciseData['restTime'],
+                        'is_bodyweight_exercise' => $exerciseData['is_bodyweight_exercise'] ?? false,
                     ]);
 
                     foreach ($exerciseData['instances'] as $instanceData) {

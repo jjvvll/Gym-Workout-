@@ -6,6 +6,7 @@ interface AddExerciseModalProps {
   onSave: (data: {
     name: string;
     description: string;
+    is_bodyweight_exercise: boolean;
     restTime: number;
   }) => Promise<void>;
   workoutSetId: number;
@@ -18,6 +19,7 @@ export default function AddExerciseModal({
 }: AddExerciseModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isBodyweightExercise, setSsBodyweightExercise] = useState(false);
   const [minutes, setMinutes] = useState("1");
   const [seconds, setSeconds] = useState("0");
   const [isSaving, setIsSaving] = useState(false);
@@ -67,8 +69,10 @@ export default function AddExerciseModal({
       await onSave({
         name: name.trim(),
         description: description.trim(),
+        is_bodyweight_exercise: isBodyweightExercise,
         restTime: totalSeconds,
       });
+      console.log(isBodyweightExercise);
       handleClose();
     } catch (error) {
       console.error("Failed to add exercise", error);
@@ -83,6 +87,7 @@ export default function AddExerciseModal({
     setDescription("");
     setMinutes("1");
     setSeconds("0");
+    setSsBodyweightExercise((prev) => !prev);
     setErrors({});
     onClose();
   };
@@ -90,13 +95,12 @@ export default function AddExerciseModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0  bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
           <h2 className="text-xl font-bold text-gray-800">Add Exercise</h2>
         </div>
-
         {/* Content */}
         <div className="px-6 py-4 space-y-5">
           {/* Exercise Name */}
@@ -121,6 +125,48 @@ export default function AddExerciseModal({
             )}
           </div>
 
+          {/* Bodyweight Checkbox */}
+          <div
+            onClick={() => setSsBodyweightExercise((prev) => !prev)}
+            className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+              isBodyweightExercise
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <div
+              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                isBodyweightExercise
+                  ? "border-blue-500 bg-blue-500"
+                  : "border-gray-300"
+              }`}
+            >
+              {isBodyweightExercise && (
+                <svg
+                  className="w-3 h-3 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-700">
+                Bodyweight Exercise
+              </p>
+              <p className="text-xs text-gray-500">
+                No added weight (e.g. push-ups, pull-ups, planks)
+              </p>
+            </div>
+          </div>
+
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -141,7 +187,6 @@ export default function AddExerciseModal({
               Rest Time <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-2">
-              {/* Minutes */}
               <div className="flex-1">
                 <input
                   type="text"
@@ -157,10 +202,7 @@ export default function AddExerciseModal({
                   Minutes
                 </p>
               </div>
-
               <span className="text-2xl font-bold text-gray-400">:</span>
-
-              {/* Seconds */}
               <div className="flex-1">
                 <input
                   type="text"

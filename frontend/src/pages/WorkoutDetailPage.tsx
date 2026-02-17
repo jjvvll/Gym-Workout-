@@ -358,6 +358,7 @@ export default function WorkoutDetailPage() {
                   {ex.instances?.map((instance) => (
                     <WorkoutProgressRow
                       key={instance.id}
+                      isBodyweightExercise={ex.is_bodyweight_exercise}
                       exerciseInstance={instance}
                       restTime={ex.restTime}
                     />

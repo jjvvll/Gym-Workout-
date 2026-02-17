@@ -11,6 +11,8 @@ import { WorkoutSetModal } from "../components/WorkoutSetModal ";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import LoadingPopup from "../components/LoadingPopup";
+import GenerateWorkoutModal from "../components/GenerateWorkoutModal";
+import type { GenerateWorkoutPayload } from "../services/workoutService";
 
 export default function HomePage() {
   const [workouts, setWorkouts] = useState<WorkoutSet[]>([]);
@@ -25,6 +27,7 @@ export default function HomePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [message, setMessage] = useState<string | undefined>(undefined);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
 
   const handleUpdatedWorkout = (updatedWorkout: WorkoutSet) => {
     setWorkouts((prev) => {
@@ -80,7 +83,7 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, [refreshKey]);
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (payload: GenerateWorkoutPayload) => {
     setLoading(true);
     setError(null);
     setMessage(
@@ -88,21 +91,10 @@ export default function HomePage() {
     );
 
     try {
-      const payload = {
-        experience: "beginner",
-        goal: "build muscle",
-        weight: 70,
-        height: 175,
-        maxEffort: true,
-      };
-
       const res = await generateWorkout(payload);
-
-      setRefreshKey((prev) => prev + 1); //refresh the list of workout sets
-      console.log("API Response:", res.data);
-      // setResponse(res.data);
+      setRefreshKey((prev) => prev + 1);
+      setShowGenerateModal(false); // close modal on success
     } catch (err: any) {
-      console.error("API Error:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -197,18 +189,25 @@ export default function HomePage() {
           workoutToEdit={workoutToEdit}
           setWorkoutToEdit={setWorkoutToEdit}
         />
+
+        {showGenerateModal && (
+          <GenerateWorkoutModal
+            onClose={() => setShowGenerateModal(false)}
+            onGenerate={handleGenerate}
+            isLoading={loading}
+          />
+        )}
       </div>
 
       <div className="flex justify-center">
         <button
-          onClick={handleGenerate}
+          onClick={() => {
+            setShowGenerateModal(true);
+          }}
           disabled={loading}
           className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading && (
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          )}
-          {loading ? "Generating..." : "Generate Workout"}
+          Generate Workout
         </button>
       </div>
 

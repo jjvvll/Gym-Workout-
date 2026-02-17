@@ -9,7 +9,10 @@ class Exercise extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['workout_set_id', 'name', 'description',   'restTime',];
+    protected $casts = [
+        'is_bodyweight_exercise' => 'boolean',
+    ];
+    protected $fillable = ['workout_set_id', 'name', 'is_bodyweight_exercise', 'description',   'restTime',];
 
     public function workoutSet()
     {

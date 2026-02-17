@@ -14,7 +14,7 @@ export interface Exercise {
   id: number;
   name: string;
   description: string | null;
-
+  is_bodyweight_exercise: boolean;
   restTime: number;
   instances: ExerciseInstance[];
 }
@@ -41,6 +41,14 @@ export type DeleteResponse = {
   success: boolean;
   message: string;
 };
+
+export interface GenerateWorkoutPayload {
+  experience: "beginner" | "intermediate" | "pro";
+  goal: "fitness" | "build muscle" | "build strength";
+  weight: number;
+  height: number;
+  maxEffort: boolean;
+}
 
 // Fetch all workout sets with exercises
 export const getWorkoutSets = async (): Promise<WorkoutSet[]> => {

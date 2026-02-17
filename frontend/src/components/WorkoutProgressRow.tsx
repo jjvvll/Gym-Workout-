@@ -6,11 +6,13 @@ import type { setUpdateExercise } from "../services/exerciseService";
 
 type WorkoutProgressRowProps = {
   exerciseInstance: ExerciseInstance;
+  isBodyweightExercise: boolean;
   restTime: number;
 };
 
 export default function WorkoutProgressRow({
   exerciseInstance,
+  isBodyweightExercise,
   restTime,
 }: WorkoutProgressRowProps) {
   // Track checked exercises locally
@@ -123,12 +125,16 @@ export default function WorkoutProgressRow({
         {/* Exercise details */}
         <div className="flex gap-3 items-center">
           {/* WEIGHT */}
-          {!isEditingWeight ? (
+          {isBodyweightExercise ? (
+            <span className="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-md">
+              Bodyweight
+            </span>
+          ) : !isEditingWeight ? (
             <span
               onClick={() => setIsEditingWeight(true)}
               className="cursor-pointer text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-md"
             >
-              {weight} lbs
+              {weight} kg
             </span>
           ) : (
             <div className="flex gap-2 items-center">

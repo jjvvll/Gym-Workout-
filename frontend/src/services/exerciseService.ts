@@ -16,6 +16,7 @@ export type setUpdateExercise = {
 export type newExercise = {
   name: string;
   description?: string;
+  is_bodyweight_exercise: boolean;
   restTime: number;
 };
 
