@@ -72,7 +72,6 @@ class ExerciseController extends Controller
             ], 500);
         }
     }
-
     public function updateRestTime(Request $request, int $exerciseId)
     {
         $request->validate([
@@ -88,5 +87,26 @@ class ExerciseController extends Controller
             'success' => true,
             'message' => "Rest time updated for $exercise->name",
         ]);
+    }
+
+    public function updateMemo(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'memo' => 'nullable|string',
+        ]);
+
+        $exercise = Exercise::findOrFail($id);
+
+        $exercise->update([
+            'memo' => $validated['memo'] ?? null,
+        ]);
+
+        // Re-fetch with relationships
+        $exercise = $exercise->fresh(['instances']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Memo updated successfully.',
+            'data' => new ExerciseResrource($exercise),
+        ], 201);
     }
 }

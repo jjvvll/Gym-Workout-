@@ -23,6 +23,7 @@ class ExerciseResrource extends JsonResource
             'is_bodyweight_exercise' => $this->is_bodyweight_exercise,
             'description' => $this->description,
             'restTime' => $this->restTime,
+            'memo' => $this->memo,
             'instances' => ExerciseInstanceResource::collection($this->whenLoaded('instances')),
         ];
     }

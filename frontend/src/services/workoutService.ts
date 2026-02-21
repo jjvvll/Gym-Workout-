@@ -16,6 +16,7 @@ export interface Exercise {
   description: string | null;
   is_bodyweight_exercise: boolean;
   restTime: number;
+  memo: string | null;
   instances: ExerciseInstance[];
 }
 

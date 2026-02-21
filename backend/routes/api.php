@@ -42,4 +42,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/exercises/{exerciseId}/rest-time', [ExerciseController::class, 'updateRestTime']);
     Route::post('/workout-sets/{workoutSetId}/exercise', [ExerciseController::class, 'store']);
     Route::delete('/exercises/{exerciseId}', [ExerciseController::class, 'destroy']);
+    Route::put('/exercises/{id}/memo', [ExerciseController::class, 'updateMemo']);
 });

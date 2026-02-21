@@ -20,6 +20,8 @@ import LoadingPopup from "../components/LoadingPopup";
 import DropdownMenu from "../components/DropdownMenu";
 import EditTimerModal from "../components/EditTimerModal";
 import AddExerciseModal from "../components/AddExerciseModal";
+import { FileText } from "lucide-react"; // memo icon
+import SlideUpPanel from "../components/SlideUpPanel";
 
 export default function WorkoutDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +37,37 @@ export default function WorkoutDetailPage() {
   );
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [workout, setWorkout] = useState<WorkoutSet | null>(
+    location.state?.workout ?? null,
+  );
+
+  const [memoPanel, setMemoPanel] = useState<{
+    isOpen: boolean;
+    exerciseId: number;
+    content: string | null;
+  }>({
+    isOpen: false,
+    exerciseId: 0,
+    content: null,
+  });
+
+  const handleMemoUpdated = (updatedExercise: Exercise) => {
+    setWorkout((prev) =>
+      prev
+        ? {
+            ...prev,
+            exercises: prev.exercises.map((ex) =>
+              ex.id === updatedExercise.id ? updatedExercise : ex,
+            ),
+          }
+        : prev,
+    );
+    // also update the panel content
+    setMemoPanel((prev) => ({
+      ...prev,
+      content: updatedExercise.memo ?? null,
+    }));
+  };
 
   const formatElapsedTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -67,10 +100,6 @@ export default function WorkoutDetailPage() {
     setIsTimerModalOpen(false);
     setSelectedExercise(null);
   };
-
-  const [workout, setWorkout] = useState<WorkoutSet | null>(
-    location.state?.workout ?? null,
-  );
 
   useEffect(() => {
     setWorkout(null); // clear old data immediately
@@ -334,11 +363,40 @@ export default function WorkoutDetailPage() {
               >
                 {/* Header with exercise name and menu */}
                 <div className="flex items-start justify-between mb-4">
-                  <h4 className="font-semibold text-lg md:text-xl flex-1 pr-2">
-                    {ex.name}
-                  </h4>
+                  <div className="flex items-center gap-2 flex-1 pr-2">
+                    <h4 className="font-semibold text-lg md:text-xl">
+                      {ex.name}
+                    </h4>
+                    <button
+                      onClick={() =>
+                        setMemoPanel({
+                          isOpen: true,
+                          exerciseId: ex.id,
+                          content: ex.memo ?? null,
+                        })
+                      }
+                      className="text-gray-400 hover:text-blue-500 transition-colors"
+                      title="View Memo"
+                    >
+                      📝
+                    </button>
+                  </div>
                   <DropdownMenu options={dropdownOptions} />
                 </div>
+
+                <SlideUpPanel
+                  isOpen={memoPanel.isOpen}
+                  onClose={() =>
+                    setMemoPanel({
+                      isOpen: false,
+                      exerciseId: 0,
+                      content: null,
+                    })
+                  }
+                  content={memoPanel.content}
+                  exerciseId={memoPanel.exerciseId}
+                  onMemoUpdated={handleMemoUpdated}
+                />
 
                 {/* Sliding Description */}
                 <div

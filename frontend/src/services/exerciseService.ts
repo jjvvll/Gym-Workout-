@@ -73,3 +73,13 @@ export const deleteExercise = async (
   const response = await api.delete(`/api/exercises/${exerciseId}`);
   return response.data;
 };
+
+export const addMemo = async (
+  exerciseId: number,
+  memo: string | null,
+): Promise<AddSetResponse<Exercise>> => {
+  const response = await api.put(`/api/exercises/${exerciseId}/memo`, {
+    memo,
+  });
+  return response.data;
+};
