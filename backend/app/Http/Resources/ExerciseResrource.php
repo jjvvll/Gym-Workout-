@@ -20,6 +20,7 @@ class ExerciseResrource extends JsonResource
             'id' => $this->id,
             'workout_set_id' => $this->workout_set_id,
             'name' => $this->name,
+            'target_area' => $this->target_area,
             'is_bodyweight_exercise' => $this->is_bodyweight_exercise,
             'description' => $this->description,
             'restTime' => $this->restTime,

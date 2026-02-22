@@ -22,10 +22,14 @@ import EditTimerModal from "../components/EditTimerModal";
 import AddExerciseModal from "../components/AddExerciseModal";
 import { FileText } from "lucide-react"; // memo icon
 import SlideUpPanel from "../components/SlideUpPanel";
+import { useWorkoutSession } from "../hooks/useWorkoutSession";
+import { storeWorkoutLogs } from "../services/workoutLogsService";
+import { useNavigate } from "react-router-dom";
 
 export default function WorkoutDetailPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [isTimerModalOpen, setIsTimerModalOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
@@ -263,6 +267,37 @@ export default function WorkoutDetailPage() {
     }
   };
 
+  const { session, updateInstanceProgress, clearSession, getInstanceProgress } =
+    useWorkoutSession(workout?.id ?? 0);
+
+  const handleFinishWorkout = async () => {
+    // Check if at least one instance is marked as completed
+    const hasCompletedSets = Object.values(session.exercises).some(
+      (instances) =>
+        Object.values(instances).some((instance) => instance.is_completed),
+    );
+
+    if (!hasCompletedSets) {
+      toast.error("Complete at least one set before finishing.");
+      return;
+    }
+
+    try {
+      console.log("exercises:", session.exercises);
+      console.log("exercise count:", Object.keys(session.exercises).length);
+      const response = await storeWorkoutLogs(session);
+      if (response.success) {
+        toast.success(response.message);
+        clearSession(); // wipe sessionStorage
+        navigate("/"); // navigates back to homepage
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      console.error("Failed to save workout log:", error);
+    }
+  };
+
   if (!workout) return <p>Loading...</p>;
 
   return (
@@ -274,8 +309,9 @@ export default function WorkoutDetailPage() {
             {workout.name}
           </h1>
 
-          {/* Timer Display */}
+          {/* Right side controls */}
           <div className="flex items-center gap-3">
+            {/* Timer Display */}
             <div className="text-right">
               <div className="text-xs text-gray-500 font-medium mb-0.5">
                 Elapsed Time
@@ -292,7 +328,6 @@ export default function WorkoutDetailPage() {
               aria-label={isTimerRunning ? "Pause timer" : "Resume timer"}
             >
               {isTimerRunning ? (
-                // Pause icon
                 <svg
                   className="w-5 h-5 text-blue-600"
                   fill="currentColor"
@@ -301,7 +336,6 @@ export default function WorkoutDetailPage() {
                   <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                 </svg>
               ) : (
-                // Play icon
                 <svg
                   className="w-5 h-5 text-blue-600"
                   fill="currentColor"
@@ -310,6 +344,17 @@ export default function WorkoutDetailPage() {
                   <path d="M8 5v14l11-7z" />
                 </svg>
               )}
+            </button>
+
+            {/* Divider */}
+            <div className="w-px h-8 bg-gray-200" />
+
+            {/* Finish Workout Button */}
+            <button
+              onClick={handleFinishWorkout}
+              className="px-4 py-2 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+            >
+              Finish
             </button>
           </div>
         </div>
@@ -419,6 +464,11 @@ export default function WorkoutDetailPage() {
                       isBodyweightExercise={ex.is_bodyweight_exercise}
                       exerciseInstance={instance}
                       restTime={ex.restTime}
+                      exerciseId={ex.id}
+                      progress={getInstanceProgress(ex.id, instance.id)}
+                      onProgressChange={(instanceId, data) =>
+                        updateInstanceProgress(ex.id, instanceId, data)
+                      }
                     />
                   ))}
                 </div>

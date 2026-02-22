@@ -13,6 +13,7 @@ export interface ExerciseInstance {
 export interface Exercise {
   id: number;
   name: string;
+  target_area: string;
   description: string | null;
   is_bodyweight_exercise: boolean;
   restTime: number;

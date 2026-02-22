@@ -12,7 +12,7 @@ class Exercise extends Model
     protected $casts = [
         'is_bodyweight_exercise' => 'boolean',
     ];
-    protected $fillable = ['workout_set_id', 'name', 'is_bodyweight_exercise',  'memo', 'description',   'restTime',];
+    protected $fillable = ['workout_set_id', 'name', 'target_area', 'is_bodyweight_exercise',  'memo', 'description',   'restTime',];
 
     public function workoutSet()
     {

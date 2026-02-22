@@ -191,6 +191,54 @@ class WorkoutSetController extends Controller
 
         This is wrong because there is only 1 instance. There must always be exactly {$sets} instances.
 
+        TARGET AREA — this is required for every exercise:
+        Each exercise must include a target_area field. You must pick exactly one value from this list (use the snake_case value exactly as shown):
+
+        Chest:
+        - upper_chest
+        - lower_chest
+        - middle_chest
+
+        Shoulders:
+        - front_deltoid
+        - side_deltoid
+        - rear_deltoid
+
+        Back:
+        - upper_back
+        - mid_back
+        - lower_back
+        - lats
+
+        Arms:
+        - biceps
+        - triceps
+        - forearms
+
+        Legs:
+        - quadriceps
+        - hamstrings
+        - glutes
+        - calves
+
+        Example with target_area:
+        exercise: { name: \"Bench Press\", is_bodyweight_exercise: false, target_area: \"middle_chest\", instances: [
+        { weight: 60, weight_unit: \"kg\", reps: 10, sets: 1 },
+        { weight: 65, weight_unit: \"kg\", reps: 8, sets: 1 },
+        { weight: 70, weight_unit: \"kg\", reps: 6, sets: 1 }
+        ]}
+
+        exercise: { name: \"Pull-ups\", is_bodyweight_exercise: true, target_area: \"lats\", instances: [
+        { weight: 0, weight_unit: \"kg\", reps: 10, sets: 1 },
+        { weight: 0, weight_unit: \"kg\", reps: 10, sets: 1 },
+        { weight: 0, weight_unit: \"kg\", reps: 10, sets: 1 }
+        ]}
+
+        Rules for target_area:
+        - It is REQUIRED on every exercise, no exceptions.
+        - Only use values from the list above, exactly as written in snake_case.
+        - Choose the most specific and accurate target area for the exercise.
+
         Create exactly 4 workout days with exactly 4 exercises each.
         Day names: Monday Push Day, Wednesday Pull Day, Friday Leg Day, Sunday Full Body Day.
         Remember: {$sets} instances per exercise, every time, no exceptions.";
@@ -237,6 +285,7 @@ class WorkoutSetController extends Controller
                                             'type' => 'object',
                                             'properties' => [
                                                 'name' => ['type' => 'string'],
+                                                'target_area' => ['type' => 'string'],
                                                 'is_bodyweight_exercise' => ['type' => 'boolean'],
                                                 'description' => ['type' => 'string'],
                                                 'restTime' => ['type' => 'integer'],
@@ -254,7 +303,7 @@ class WorkoutSetController extends Controller
                                                     ]
                                                 ]
                                             ],
-                                            'required' => ['name', 'is_bodyweight_exercise', 'description', 'restTime', 'instances']
+                                            'required' => ['name', 'target_area', 'is_bodyweight_exercise', 'description', 'restTime', 'instances']
                                         ]
                                     ]
                                 ],
@@ -280,6 +329,7 @@ class WorkoutSetController extends Controller
                 foreach ($setData['exercises'] as $exerciseData) {
                     $exercise = $set->exercises()->create([
                         'name' => $exerciseData['name'],
+                        'target_area' => $exerciseData['target_area'],
                         'description' => $exerciseData['description'],
                         'restTime' => $exerciseData['restTime'],
                         'is_bodyweight_exercise' => $exerciseData['is_bodyweight_exercise'] ?? false,

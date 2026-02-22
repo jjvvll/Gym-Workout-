@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ExerciseController;
 use App\Http\Controllers\Api\ExerciseInstanceController;
+use App\Http\Controllers\Api\WorkoutLogsController;
 use App\Http\Controllers\Api\WorkoutSetController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
@@ -43,4 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/workout-sets/{workoutSetId}/exercise', [ExerciseController::class, 'store']);
     Route::delete('/exercises/{exerciseId}', [ExerciseController::class, 'destroy']);
     Route::put('/exercises/{id}/memo', [ExerciseController::class, 'updateMemo']);
+
+    // api.php
+    Route::post('/workout-logs', [WorkoutLogsController::class, 'store']);
 });

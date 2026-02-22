@@ -3,20 +3,32 @@ import type { Exercise, ExerciseInstance } from "../services/workoutService";
 import TimerPopup from "./TimerPopup";
 import { updateExercise } from "../services/exerciseService";
 import type { setUpdateExercise } from "../services/exerciseService";
+import type { InstanceProgress } from "../hooks/useWorkoutSession";
 
 type WorkoutProgressRowProps = {
   exerciseInstance: ExerciseInstance;
   isBodyweightExercise: boolean;
   restTime: number;
+  exerciseId: number;
+  progress: InstanceProgress | null;
+  onProgressChange: (
+    instanceId: number,
+    data: Partial<InstanceProgress>,
+  ) => void;
 };
 
 export default function WorkoutProgressRow({
   exerciseInstance,
   isBodyweightExercise,
   restTime,
+  exerciseId,
+  progress,
+  onProgressChange,
 }: WorkoutProgressRowProps) {
   // Track checked exercises locally
-  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [isChecked, setIsChecked] = useState<boolean>(
+    progress?.is_completed ?? false,
+  );
   const [showTimer, setShowTimer] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState(restTime);
 
@@ -71,8 +83,12 @@ export default function WorkoutProgressRow({
   };
 
   const handleCheckboxChange = () => {
-    setIsChecked((prev) => !prev);
-    if (!isChecked) {
+    const newValue = !isChecked;
+
+    setIsChecked(newValue);
+    onProgressChange(exerciseInstance.id, { is_completed: newValue });
+
+    if (newValue) {
       setShowTimer(true);
     }
   };
