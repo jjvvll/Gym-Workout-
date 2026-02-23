@@ -120,12 +120,21 @@ export default function HomePage() {
             )}
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="self-start sm:self-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 transition-colors shadow-sm"
-          >
-            Logout
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              onClick={() => navigate("/reports")}
+              className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 active:bg-blue-200 transition-colors shadow-sm"
+            >
+              📊 Reports
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 transition-colors shadow-sm"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Add button */}

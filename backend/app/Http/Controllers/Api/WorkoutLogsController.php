@@ -100,4 +100,32 @@ class WorkoutLogsController extends Controller
             ], 500);
         }
     }
+
+    public function volumeOverTime(Request $request)
+    {
+        $validated = $request->validate([
+            'year'  => 'nullable|integer|digits:4',
+            'month' => 'nullable|integer|min:1|max:12',
+        ]);
+
+        $year  = $validated['year']  ?? now()->year;
+        $month = $validated['month'] ?? now()->month;
+
+        $logs = WorkoutLogs::where('user_id', auth()->id())
+            ->whereYear('performed_on', $year)
+            ->whereMonth('performed_on', $month)
+            ->selectRaw('performed_on, SUM(volume) as total_volume')
+            ->groupBy('performed_on')
+            ->orderBy('performed_on', 'asc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $logs,
+            'meta'    => [
+                'year'  => $year,
+                'month' => $month,
+            ],
+        ]);
+    }
 }

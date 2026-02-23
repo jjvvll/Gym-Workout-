@@ -7,6 +7,17 @@ export type StoreLogResponse = {
   data?: object[];
 };
 
+export type VolumeLog = {
+  performed_on: string;
+  total_volume: number;
+};
+
+export type VolumeResponse = {
+  success: boolean;
+  data: VolumeLog[];
+  meta: { year: number; month: number };
+};
+
 export const storeWorkoutLogs = async (
   session: WorkoutSession,
 ): Promise<StoreLogResponse> => {
@@ -14,5 +25,16 @@ export const storeWorkoutLogs = async (
     workout_set_id: session.workout_set_id,
     exercises: session.exercises,
   });
+  return response.data;
+};
+
+export const getVolumeOverTime = async (
+  year?: number,
+  month?: number,
+): Promise<VolumeResponse> => {
+  const params = new URLSearchParams();
+  if (year) params.append("year", year.toString());
+  if (month) params.append("month", month.toString());
+  const response = await api.get(`/api/workout-logs/volume?${params}`);
   return response.data;
 };

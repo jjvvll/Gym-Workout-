@@ -7,6 +7,8 @@ import WorkoutDetailPage from "./pages/WorkoutDetailPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RegisterPage from "./pages/RegisterPage";
 import { GuestRoute } from "./components/GuestRoute";
+import ReportsPage from "./pages/ReportsPage";
+
 function App() {
   return (
     <AuthProvider>
@@ -41,6 +43,14 @@ function App() {
           element={
             <ProtectedRoute>
               <WorkoutDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <ReportsPage />
             </ProtectedRoute>
           }
         />

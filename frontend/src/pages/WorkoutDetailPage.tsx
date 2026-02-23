@@ -289,7 +289,7 @@ export default function WorkoutDetailPage() {
       if (response.success) {
         toast.success(response.message);
         clearSession(); // wipe sessionStorage
-        navigate("/"); // navigates back to homepage
+        navigate("/reports"); // navigates back to homepage
       } else {
         toast.error(response.message);
       }
