@@ -44,6 +44,11 @@ export type DeleteResponse = {
   message: string;
 };
 
+export type AnalysisResponse = {
+  success: boolean;
+  message: string;
+};
+
 export interface GenerateWorkoutPayload {
   experience: "beginner" | "intermediate" | "pro";
   goal: "fitness" | "build muscle" | "build strength";
@@ -91,5 +96,16 @@ export const generateWorkout = async (
 ): Promise<ApiResponse<WorkoutSet>> => {
   const response = await api.post("/api/generate-workout", payload);
 
+  return response.data;
+};
+
+export const generateAnalysis = async (
+  year?: number,
+  month?: number,
+): Promise<AnalysisResponse> => {
+  const response = await api.post("/api/workout-logs/analysis", {
+    year,
+    month,
+  });
   return response.data;
 };

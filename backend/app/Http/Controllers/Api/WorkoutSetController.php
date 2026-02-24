@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\WorkoutSetResource;
 use App\Models\Exercise;
 use App\Models\ExerciseInstance;
+use App\Models\WorkoutLogs;
 use App\Models\WorkoutSet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

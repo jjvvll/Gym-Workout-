@@ -7,6 +7,7 @@ use App\Models\Exercise;
 use App\Models\ExerciseInstance;
 use App\Models\WorkoutLogs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class WorkoutLogsController extends Controller
 {
@@ -127,5 +128,98 @@ class WorkoutLogsController extends Controller
                 'month' => $month,
             ],
         ]);
+    }
+
+    public function generateAnalysis(Request $request)
+    {
+        set_time_limit(600);
+        ini_set('max_execution_time', 600);
+
+        try {
+            $validated = $request->validate([
+                'year'  => 'nullable|integer|digits:4',
+                'month' => 'nullable|integer|min:1|max:12',
+            ]);
+
+            $year  = $validated['year']  ?? now()->year;
+            $month = $validated['month'] ?? now()->month;
+            $monthName = now()->setMonth($month)->format('F');
+
+            // Fetch the user's volume data for the selected month
+            $logs = WorkoutLogs::where('user_id', auth()->id())
+                ->whereYear('performed_on', $year)
+                ->whereMonth('performed_on', $month)
+                ->selectRaw('performed_on, SUM(volume) as total_volume')
+                ->groupBy('performed_on')
+                ->orderBy('performed_on', 'asc')
+                ->get();
+
+            if ($logs->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No workout data found for this period.',
+                ], 422);
+            }
+
+            // Format logs into readable text for the AI
+            $logSummary = $logs->map(function ($log) {
+                return "- {$log->performed_on}: " . number_format($log->total_volume, 2) . " kg total volume";
+            })->implode("\n");
+
+            $totalVolume    = $logs->sum('total_volume');
+            $trainingDays   = $logs->count();
+            $avgVolume      = round($totalVolume / $trainingDays, 2);
+
+            $prompt = "You are an expert fitness coach analyzing a user's gym performance data.
+
+            Here is the user's total workout volume data for {$monthName} {$year}:
+
+            {$logSummary}
+
+            Summary:
+            - Total training days: {$trainingDays}
+            - Total volume lifted: " . number_format($totalVolume, 2) . " kg
+            - Average daily volume: {$avgVolume} kg
+
+            Based on this data, provide a concise and motivating analysis. Include:
+            1. Overall assessment of their training consistency
+            2. Any noticeable trends (progression, regression, or plateau)
+            3. One specific actionable recommendation to improve next month
+
+            Keep the tone encouraging and professional. Be concise — no more than 4 sentences.";
+
+            $response = Http::timeout(600)->post('http://127.0.0.1:11434/api/chat', [
+                'model'    => 'deepseek-r1:8b',
+                'messages' => [
+                    [
+                        'role'    => 'user',
+                        'content' => $prompt,
+                    ]
+                ],
+                'stream' => false,
+                'format' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'success'  => ['type' => 'boolean'],
+                        'message'  => ['type' => 'string'],
+                    ],
+                    'required' => ['success', 'message']
+                ]
+            ]);
+
+            $rawContent = $response['message']['content'];
+            $parsed     = json_decode($rawContent, true);
+
+            return response()->json([
+                'success' => true,
+                'message' => $parsed['message'] ?? 'Analysis generated.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate analysis.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
     }
 }

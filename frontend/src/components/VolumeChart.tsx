@@ -10,6 +10,8 @@ import {
 } from "recharts";
 import { getVolumeOverTime } from "../services/workoutLogsService";
 import type { VolumeLog } from "../services/workoutLogsService";
+import { generateAnalysis } from "../services/workoutService";
+import toast from "react-hot-toast";
 
 const MONTHS = [
   "January",
@@ -33,6 +35,8 @@ const VolumeChart = () => {
   const [data, setData] = useState<VolumeLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState<string | null>(null);
+  const [analyzingLoading, setAnalyzingLoading] = useState(false);
 
   // Generate year options (last 5 years)
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - i);
@@ -54,6 +58,23 @@ const VolumeChart = () => {
     };
     fetch();
   }, [year, month]);
+
+  const handleGenerateAnalysis = async () => {
+    setAnalyzingLoading(true);
+    setAnalysis(null);
+    try {
+      const response = await generateAnalysis(year, month);
+      if (response.success) {
+        setAnalysis(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    } catch {
+      toast.error("Failed to generate analysis.");
+    } finally {
+      setAnalyzingLoading(false);
+    }
+  };
 
   // Format date for X axis e.g. "Feb 1"
   const formatDate = (dateStr: string) => {
@@ -180,17 +201,21 @@ const VolumeChart = () => {
 
       {/* Summary */}
       {data.length > 0 && (
-        <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-sm text-gray-500">
-          <span>
-            {data.length} training day{data.length !== 1 ? "s" : ""} this month
-          </span>
-          <span className="font-semibold text-gray-700">
-            Total:{" "}
-            {data
-              .reduce((sum, d) => sum + Number(d.total_volume), 0)
-              .toLocaleString()}{" "}
-            kg
-          </span>
+        <div className="mt-4 pt-4 border-t">
+          <button
+            onClick={handleGenerateAnalysis}
+            disabled={analyzingLoading}
+            className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+          >
+            {analyzingLoading ? "Analyzing..." : "✨ Generate AI Analysis"}
+          </button>
+
+          {analysis && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-gray-700 leading-relaxed">
+              <p className="font-semibold text-blue-600 mb-1">AI Analysis</p>
+              <p>{analysis}</p>
+            </div>
+          )}
         </div>
       )}
     </div>

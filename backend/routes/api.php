@@ -32,7 +32,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/workout-sets/{id}', [WorkoutSetController::class, 'update']);
     Route::post('/workout-sets', [WorkoutSetController::class, 'store']);
     Route::delete('/workout-sets/{id}', [WorkoutSetController::class, 'destroy']);
-    Route::post('/generate-workout', [WorkoutSetController::class, 'generate']);
 
     // Exercise Instances
     Route::post('/exercises/{exerciseId}/instances', [ExerciseInstanceController::class, 'store']);
@@ -48,4 +47,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // api.php
     Route::post('/workout-logs', [WorkoutLogsController::class, 'store']);
     Route::get('/workout-logs/volume', [WorkoutLogsController::class, 'volumeOverTime']);
+    Route::post('/workout-logs/analysis', [WorkoutLogsController::class, 'generateAnalysis']);
 });
