@@ -283,8 +283,8 @@ export default function WorkoutDetailPage() {
     }
 
     try {
-      console.log("exercises:", session.exercises);
-      console.log("exercise count:", Object.keys(session.exercises).length);
+      // console.log("exercises:", session.exercises);
+      // console.log("exercise count:", Object.keys(session.exercises).length);
       const response = await storeWorkoutLogs(session);
       if (response.success) {
         toast.success(response.message);

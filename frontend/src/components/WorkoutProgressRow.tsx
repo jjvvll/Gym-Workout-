@@ -4,6 +4,7 @@ import TimerPopup from "./TimerPopup";
 import { updateExercise } from "../services/exerciseService";
 import type { setUpdateExercise } from "../services/exerciseService";
 import type { InstanceProgress } from "../hooks/useWorkoutSession";
+import RestNotification from "./RestNotification";
 
 type WorkoutProgressRowProps = {
   exerciseInstance: ExerciseInstance;
@@ -31,6 +32,7 @@ export default function WorkoutProgressRow({
   );
   const [showTimer, setShowTimer] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState(restTime);
+  const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
     setTimeLeft(restTime);
@@ -101,6 +103,7 @@ export default function WorkoutProgressRow({
         if (prev <= 1) {
           clearInterval(timer);
           handleCloseTimer();
+          setShowNotification(true);
           return 0;
         }
         return prev - 1;
@@ -117,6 +120,10 @@ export default function WorkoutProgressRow({
     // play notification sound
     const audio = new Audio("/sounds/notification-sound.mp3");
     audio.play().catch((err) => console.log("Audio failed:", err));
+  };
+
+  const handleStopNotification = () => {
+    setShowNotification(false);
   };
 
   return (
@@ -203,6 +210,11 @@ export default function WorkoutProgressRow({
           onClose={handleCloseTimer}
         />
       )}
+
+      <RestNotification
+        isVisible={showNotification}
+        onStop={handleStopNotification}
+      />
     </div>
   );
 }
