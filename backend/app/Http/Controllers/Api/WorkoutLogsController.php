@@ -222,4 +222,19 @@ class WorkoutLogsController extends Controller
             ], 500);
         }
     }
+
+    public function byMuscle(Request $request)
+    {
+        $year  = $request->input('year',  now()->year);
+        $month = $request->input('month', now()->month);
+
+        $logs = WorkoutLogs::where('user_id', auth()->id())
+            ->whereYear('performed_on', $year)
+            ->whereMonth('performed_on', $month)
+            ->selectRaw('target_area, SUM(volume) as total_volume')
+            ->groupBy('target_area')
+            ->get();
+
+        return response()->json(['success' => true, 'data' => $logs]);
+    }
 }

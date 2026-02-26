@@ -48,4 +48,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/workout-logs', [WorkoutLogsController::class, 'store']);
     Route::get('/workout-logs/volume', [WorkoutLogsController::class, 'volumeOverTime']);
     Route::post('/workout-logs/analysis', [WorkoutLogsController::class, 'generateAnalysis']);
+    Route::get('/workout-logs/by-muscle', [WorkoutLogsController::class, 'byMuscle']);
 });

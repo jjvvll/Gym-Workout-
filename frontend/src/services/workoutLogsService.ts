@@ -28,6 +28,17 @@ export const storeWorkoutLogs = async (
   return response.data;
 };
 
+export type MuscleVolumeData = {
+  target_area: string;
+  total_volume: number;
+};
+
+export type MuscleVolumeResponse = {
+  success: boolean;
+  data: MuscleVolumeData[];
+  meta: { year: number; month: number };
+};
+
 export const getVolumeOverTime = async (
   year?: number,
   month?: number,
@@ -36,5 +47,16 @@ export const getVolumeOverTime = async (
   if (year) params.append("year", year.toString());
   if (month) params.append("month", month.toString());
   const response = await api.get(`/api/workout-logs/volume?${params}`);
+  return response.data;
+};
+
+export const getMuscleVolume = async (
+  year?: number,
+  month?: number,
+): Promise<MuscleVolumeResponse> => {
+  const params = new URLSearchParams();
+  if (year) params.append("year", year.toString());
+  if (month) params.append("month", month.toString());
+  const response = await api.get(`/api/workout-logs/by-muscle?${params}`);
   return response.data;
 };

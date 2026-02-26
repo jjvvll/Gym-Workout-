@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   LineChart,
   Line,
@@ -8,56 +8,27 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { getVolumeOverTime } from "../services/workoutLogsService";
-import type { VolumeLog } from "../services/workoutLogsService";
 import { generateAnalysis } from "../services/workoutService";
 import toast from "react-hot-toast";
+import type { VolumeLog } from "../services/workoutLogsService";
 
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+interface ReportsPageProps {
+  year: number;
+  month: number;
+  loading: boolean;
+  error: boolean;
+  data: VolumeLog[];
+}
 
-const VolumeChart = () => {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
-  const [data, setData] = useState<VolumeLog[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const VolumeChart = ({
+  year,
+  month,
+  loading,
+  error,
+  data,
+}: ReportsPageProps) => {
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [analyzingLoading, setAnalyzingLoading] = useState(false);
-
-  // Generate year options (last 5 years)
-  const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - i);
-
-  useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await getVolumeOverTime(year, month);
-        if (response.success) {
-          setData(response.data);
-        }
-      } catch {
-        setError("Failed to load volume data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetch();
-  }, [year, month]);
 
   const handleGenerateAnalysis = async () => {
     setAnalyzingLoading(true);
@@ -96,33 +67,6 @@ const VolumeChart = () => {
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
             Daily total tonnage lifted (sets × reps × weight)
           </p>
-        </div>
-
-        {/* Filters - full width on mobile */}
-        <div className="flex items-center gap-2">
-          <select
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            {MONTHS.map((m, i) => (
-              <option key={m} value={i + 1}>
-                {m}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
 
