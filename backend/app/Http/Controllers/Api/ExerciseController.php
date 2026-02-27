@@ -16,6 +16,7 @@ class ExerciseController extends Controller
         try {
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
+                'target_area' => ['required', 'string', 'max:255'],
                 'is_bodyweight_exercise' => ['nullable', 'boolean'],
                 'description' => ['nullable', 'string'],
                 'restTime' => ['required', 'integer', 'min:0'],

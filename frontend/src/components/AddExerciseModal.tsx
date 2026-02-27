@@ -5,6 +5,7 @@ interface AddExerciseModalProps {
   onClose: () => void;
   onSave: (data: {
     name: string;
+    target_area: string;
     description: string;
     is_bodyweight_exercise: boolean;
     restTime: number;
@@ -12,20 +13,68 @@ interface AddExerciseModalProps {
   workoutSetId: number;
 }
 
+const TARGET_AREAS = [
+  {
+    group: "Chest",
+    options: [
+      { value: "upper_chest", label: "Upper Chest" },
+      { value: "middle_chest", label: "Middle Chest" },
+      { value: "lower_chest", label: "Lower Chest" },
+    ],
+  },
+  {
+    group: "Shoulders",
+    options: [
+      { value: "front_deltoid", label: "Front Deltoid" },
+      { value: "side_deltoid", label: "Side Deltoid" },
+      { value: "rear_deltoid", label: "Rear Deltoid" },
+    ],
+  },
+  {
+    group: "Back",
+    options: [
+      { value: "upper_back", label: "Upper Back" },
+      { value: "mid_back", label: "Mid Back" },
+      { value: "lower_back", label: "Lower Back" },
+      { value: "lats", label: "Lats" },
+    ],
+  },
+  {
+    group: "Arms",
+    options: [
+      { value: "biceps", label: "Biceps" },
+      { value: "triceps", label: "Triceps" },
+      { value: "forearms", label: "Forearms" },
+    ],
+  },
+  {
+    group: "Legs",
+    options: [
+      { value: "quadriceps", label: "Quadriceps" },
+      { value: "hamstrings", label: "Hamstrings" },
+      { value: "glutes", label: "Glutes" },
+      { value: "calves", label: "Calves" },
+    ],
+  },
+];
+
 export default function AddExerciseModal({
   isOpen,
   onClose,
   onSave,
 }: AddExerciseModalProps) {
   const [name, setName] = useState("");
+  const [targetArea, setTargetArea] = useState("");
   const [description, setDescription] = useState("");
   const [isBodyweightExercise, setSsBodyweightExercise] = useState(false);
   const [minutes, setMinutes] = useState("1");
   const [seconds, setSeconds] = useState("0");
   const [isSaving, setIsSaving] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; restTime?: string }>(
-    {},
-  );
+  const [errors, setErrors] = useState<{
+    name?: string;
+    targetArea?: string;
+    restTime?: string;
+  }>({});
 
   const handleMinutesChange = (value: string) => {
     if (value === "" || /^\d+$/.test(value)) {
@@ -68,6 +117,7 @@ export default function AddExerciseModal({
     try {
       await onSave({
         name: name.trim(),
+        target_area: targetArea.trim(),
         description: description.trim(),
         is_bodyweight_exercise: isBodyweightExercise,
         restTime: totalSeconds,
@@ -84,6 +134,7 @@ export default function AddExerciseModal({
   const handleClose = () => {
     // Reset form
     setName("");
+    setTargetArea("");
     setDescription("");
     setMinutes("1");
     setSeconds("0");
@@ -122,6 +173,36 @@ export default function AddExerciseModal({
             />
             {errors.name && (
               <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Target Area <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={targetArea}
+              onChange={(e) => {
+                setTargetArea(e.target.value);
+                setErrors((prev) => ({ ...prev, targetArea: undefined }));
+              }}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white ${
+                errors.targetArea ? "border-red-500" : "border-gray-300"
+              }`}
+            >
+              <option value="">Select target area...</option>
+              {TARGET_AREAS.map((group) => (
+                <optgroup key={group.group} label={group.group}>
+                  {group.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            {errors.targetArea && (
+              <p className="text-red-500 text-sm mt-1">{errors.targetArea}</p>
             )}
           </div>
 
