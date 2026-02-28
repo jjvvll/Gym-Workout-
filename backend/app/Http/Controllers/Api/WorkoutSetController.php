@@ -44,6 +44,9 @@ class WorkoutSetController extends Controller
             //  Save to database
             $workoutSet = WorkoutSet::create($validated);
 
+            // Load relationships after creating
+            $workoutSet->load('exercises.instances');
+
             //  Success response
             return response()->json([
                 'success' => true,
@@ -73,6 +76,9 @@ class WorkoutSetController extends Controller
 
             // Update the database
             $workoutSet->update($validated);
+
+            // Load relationships after updating
+            $workoutSet->load('exercises.instances');
 
             // Success response
             return response()->json([

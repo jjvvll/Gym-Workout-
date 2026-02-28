@@ -7,6 +7,7 @@ import type { VolumeLog } from "../services/workoutLogsService";
 import { getVolumeOverTime } from "../services/workoutLogsService";
 import toast from "react-hot-toast";
 import LoadingPopup from "../components/LoadingPopup";
+import { useNavigate } from "react-router-dom";
 
 const MONTHS = [
   "January",
@@ -24,6 +25,7 @@ const MONTHS = [
 ];
 
 const ReportsPage = () => {
+  const navigate = useNavigate();
   const now = new Date();
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - i);
   const [muscleData, setMuscleData] = useState<MuscleVolumeData[]>([]);
@@ -68,9 +70,32 @@ const ReportsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <div className="max-w-4xl mx-auto space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
-          Progress Reports
-        </h1>
+        <div className="flex items-center gap-3">
+          {/* Home button */}
+          <button
+            onClick={() => navigate("/")}
+            className="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+            aria-label="Go to home"
+          >
+            <svg
+              className="w-5 h-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 12l2-2m0 0l7-7 7 7m-9 5v6h4v-6m-4 0H9m6 0h-2"
+              />
+            </svg>
+          </button>
+
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+            Progress Reports
+          </h1>
+        </div>
         {/* Filters - full width on mobile */}
         <div className="flex items-center gap-2">
           <select

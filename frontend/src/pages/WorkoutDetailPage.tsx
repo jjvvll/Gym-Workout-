@@ -305,9 +305,32 @@ export default function WorkoutDetailPage() {
       {/* Header */}
       <div className="bg-white p-4 sm:p-5 rounded-lg shadow-md mb-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-            {workout.name}
-          </h1>
+          <div className="flex items-center gap-3">
+            {/* Home button */}
+            <button
+              onClick={() => navigate("/")}
+              className="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+              aria-label="Go to home"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 12l2-2m0 0l7-7 7 7m-9 5v6h4v-6m-4 0H9m6 0h-2"
+                />
+              </svg>
+            </button>
+
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+              {workout.name}
+            </h1>
+          </div>
 
           {/* Right side controls */}
           <div className="flex items-center gap-3">
