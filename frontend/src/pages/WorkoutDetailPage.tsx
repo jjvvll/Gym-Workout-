@@ -45,6 +45,23 @@ export default function WorkoutDetailPage() {
     location.state?.workout ?? null,
   );
 
+  // Add this state at the top of your component
+  const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
+    new Set(),
+  );
+
+  const toggleExercise = (exerciseId: number) => {
+    setExpandedExercises((prev) => {
+      const next = new Set(prev);
+      if (next.has(exerciseId)) {
+        next.delete(exerciseId);
+      } else {
+        next.add(exerciseId);
+      }
+      return next;
+    });
+  };
+
   const [memoPanel, setMemoPanel] = useState<{
     isOpen: boolean;
     exerciseId: number;
@@ -405,12 +422,10 @@ export default function WorkoutDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {workout.exercises.map((ex) => {
             const showDescription = showDescriptionId === ex.id;
+            const isExpanded = expandedExercises.has(ex.id); // ✅ check if expanded
 
             const dropdownOptions = [
-              {
-                label: "Edit Timer",
-                onClick: () => handleOpenTimerModal(ex),
-              },
+              { label: "Edit Timer", onClick: () => handleOpenTimerModal(ex) },
               {
                 label: "Remove Exercise",
                 onClick: () => handleRemoveExercise(ex.id),
@@ -427,14 +442,35 @@ export default function WorkoutDetailPage() {
             return (
               <div
                 key={ex.id}
-                className="bg-white p-4 md:p-6 rounded-lg shadow-md"
+                className="bg-white rounded-lg shadow-md overflow-hidden"
               >
-                {/* Header with exercise name and menu */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-2 flex-1 pr-2">
+                {/* Header — always visible */}
+                <div className="flex items-center justify-between p-4 md:p-5">
+                  <div className="flex items-center gap-2 flex-1">
+                    {/* Arrow toggle */}
+                    <button
+                      onClick={() => toggleExercise(ex.id)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <svg
+                        className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? "rotate-180" : "rotate-0"}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+
                     <h4 className="font-semibold text-lg md:text-xl">
                       {ex.name}
                     </h4>
+
                     <button
                       onClick={() =>
                         setMemoPanel({
@@ -449,7 +485,59 @@ export default function WorkoutDetailPage() {
                       📝
                     </button>
                   </div>
+
                   <DropdownMenu options={dropdownOptions} />
+                </div>
+
+                {/* Collapsible content */}
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? "max-h-[2000px]" : "max-h-0"}`}
+                >
+                  <div className="px-4 md:px-5 pb-4 md:pb-5 space-y-4">
+                    {/* Sliding Description */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${showDescription ? "max-h-96" : "max-h-0"}`}
+                    >
+                      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                        <p className="text-sm text-gray-700">
+                          {ex.description || "No description available"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Exercise instances */}
+                    <div className="space-y-2">
+                      {ex.instances?.map((instance) => (
+                        <WorkoutProgressRow
+                          key={instance.id}
+                          isBodyweightExercise={ex.is_bodyweight_exercise}
+                          exerciseInstance={instance}
+                          restTime={ex.restTime}
+                          exerciseId={ex.id}
+                          progress={getInstanceProgress(ex.id, instance.id)}
+                          onProgressChange={(instanceId, data) =>
+                            updateInstanceProgress(ex.id, instanceId, data)
+                          }
+                        />
+                      ))}
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => modifySet(ex.id, "increment")}
+                        className="px-4 py-2.5 bg-green-500 text-white text-sm md:text-base font-medium rounded-lg hover:bg-green-600 active:bg-green-700 transition-colors shadow-sm"
+                      >
+                        Add Set
+                      </button>
+                      <button
+                        onClick={() => modifySet(ex.id, "decrement")}
+                        className="px-4 py-2.5 bg-red-500 text-white text-sm md:text-base font-medium rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors shadow-sm"
+                      >
+                        Reduce Set
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <SlideUpPanel
@@ -465,52 +553,6 @@ export default function WorkoutDetailPage() {
                   exerciseId={memoPanel.exerciseId}
                   onMemoUpdated={handleMemoUpdated}
                 />
-
-                {/* Sliding Description */}
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    showDescription ? "max-h-96 mb-4" : "max-h-0"
-                  }`}
-                >
-                  <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
-                    <p className="text-sm text-gray-700">
-                      {ex.description || "No description available"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Exercise instances */}
-                <div className="space-y-2 mb-4">
-                  {ex.instances?.map((instance) => (
-                    <WorkoutProgressRow
-                      key={instance.id}
-                      isBodyweightExercise={ex.is_bodyweight_exercise}
-                      exerciseInstance={instance}
-                      restTime={ex.restTime}
-                      exerciseId={ex.id}
-                      progress={getInstanceProgress(ex.id, instance.id)}
-                      onProgressChange={(instanceId, data) =>
-                        updateInstanceProgress(ex.id, instanceId, data)
-                      }
-                    />
-                  ))}
-                </div>
-
-                {/* Action buttons */}
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => modifySet(ex.id, "increment")}
-                    className="px-4 py-2.5 bg-green-500 text-white text-sm md:text-base font-medium rounded-lg hover:bg-green-600 active:bg-green-700 transition-colors shadow-sm"
-                  >
-                    Add Set
-                  </button>
-                  <button
-                    onClick={() => modifySet(ex.id, "decrement")}
-                    className="px-4 py-2.5 bg-red-500 text-white text-sm md:text-base font-medium rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors shadow-sm"
-                  >
-                    Reduce Set
-                  </button>
-                </div>
               </div>
             );
           })}
@@ -518,11 +560,11 @@ export default function WorkoutDetailPage() {
           {/* Add Exercise Button - as a card in the grid */}
           <button
             onClick={() => setIsAddExerciseModalOpen(true)}
-            className="bg-white border-2 border-dashed border-gray-300 p-6 rounded-lg hover:border-blue-500 hover:bg-blue-50 active:bg-blue-100 transition-all shadow-sm min-h-[200px] flex flex-col items-center justify-center gap-3 group"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 border border-blue-600 rounded-lg transition-all shadow-md group"
           >
-            <div className="w-12 h-12 rounded-full bg-blue-100 group-hover:bg-blue-200 flex items-center justify-center transition-colors">
+            <div className="w-7 h-7 rounded-full bg-blue-400 group-hover:bg-blue-500 flex items-center justify-center transition-colors shrink-0">
               <svg
-                className="w-6 h-6 text-blue-600"
+                className="w-4 h-4 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -535,9 +577,7 @@ export default function WorkoutDetailPage() {
                 />
               </svg>
             </div>
-            <span className="text-gray-600 group-hover:text-blue-600 font-medium text-sm md:text-base transition-colors">
-              Add Exercise
-            </span>
+            <span className="text-white font-medium text-sm">Add Exercise</span>
           </button>
         </div>
       </div>
