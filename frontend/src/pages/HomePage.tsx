@@ -129,6 +129,13 @@ export default function HomePage() {
             </button>
 
             <button
+              onClick={() => navigate("/settings")}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 transition-colors shadow-sm"
+            >
+              ⚙️ Settings
+            </button>
+
+            <button
               onClick={handleLogout}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 transition-colors shadow-sm"
             >

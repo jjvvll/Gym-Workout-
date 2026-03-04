@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ExerciseController;
 use App\Http\Controllers\Api\ExerciseInstanceController;
+use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\WorkoutLogsController;
 use App\Http\Controllers\Api\WorkoutSetController;
 use App\Http\Controllers\AuthController;
@@ -49,4 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/workout-logs/volume', [WorkoutLogsController::class, 'volumeOverTime']);
     Route::post('/workout-logs/analysis', [WorkoutLogsController::class, 'generateAnalysis']);
     Route::get('/workout-logs/by-muscle', [WorkoutLogsController::class, 'byMuscle']);
+
+    //settings
+    Route::get('/settings',        [SettingController::class, 'index']);
+    Route::get('/settings/{key}',  [SettingController::class, 'show']);
+    Route::post('/settings',       [SettingController::class, 'upsert']);
 });

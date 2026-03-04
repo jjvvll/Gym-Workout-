@@ -5,6 +5,7 @@ import { updateExercise } from "../services/exerciseService";
 import type { setUpdateExercise } from "../services/exerciseService";
 import type { InstanceProgress } from "../hooks/useWorkoutSession";
 import RestNotification from "./RestNotification";
+import { useAuth } from "../context/AuthContext";
 
 type WorkoutProgressRowProps = {
   exerciseInstance: ExerciseInstance;
@@ -30,6 +31,9 @@ export default function WorkoutProgressRow({
   const [isChecked, setIsChecked] = useState<boolean>(
     progress?.is_completed ?? false,
   );
+  const { settings } = useAuth();
+  const weightUnit = settings.weight_unit ?? "kg";
+
   const [showTimer, setShowTimer] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState(restTime);
   const [showNotification, setShowNotification] = useState(false);
@@ -127,37 +131,64 @@ export default function WorkoutProgressRow({
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-      <div className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+    <div
+      className="overflow-hidden rounded-xl border bg-white transition-all duration-200"
+      style={{
+        borderColor: isChecked ? "rgba(37,99,235,0.3)" : "#f3f4f6",
+        boxShadow: isChecked
+          ? "0 2px 12px rgba(37,99,235,0.08)"
+          : "0 1px 3px rgba(0,0,0,0.06)",
+      }}
+    >
+      {/* Top accent bar — only shows when checked */}
+      <div
+        className="h-0.5 w-full transition-all duration-300"
+        style={{
+          background: isChecked
+            ? "linear-gradient(to right, #2563eb, #60a5fa)"
+            : "transparent",
+        }}
+      />
+
+      <div className="flex items-center gap-3 px-4 py-3">
         {/* Radio-style checkbox */}
         <div
           className="relative flex-shrink-0 cursor-pointer"
-          onClick={() => handleCheckboxChange()}
+          onClick={handleCheckboxChange}
         >
           <input
             type="checkbox"
             checked={isChecked}
-            onChange={() => handleCheckboxChange()}
+            onChange={handleCheckboxChange}
             className="sr-only peer"
           />
           <div className="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 transition-all flex items-center justify-center">
-            {isChecked && <div className="w-2 h-2 rounded-full bg-white"></div>}
+            {isChecked && <div className="w-2 h-2 rounded-full bg-white" />}
           </div>
         </div>
 
         {/* Exercise details */}
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-2 items-center flex-1">
           {/* WEIGHT */}
           {isBodyweightExercise ? (
-            <span className="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-md">
+            <span
+              className="text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded-lg"
+              style={{
+                background: "rgba(37,99,235,0.06)",
+                color: "#2563eb",
+                border: "1px solid rgba(37,99,235,0.15)",
+                letterSpacing: "0.06em",
+              }}
+            >
               Bodyweight
             </span>
           ) : !isEditingWeight ? (
             <span
               onClick={() => setIsEditingWeight(true)}
-              className="cursor-pointer text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-md"
+              className="cursor-pointer text-xs font-black uppercase tracking-wide px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 transition-all"
+              style={{ letterSpacing: "0.06em" }}
             >
-              {weight} kg
+              {weight} {weightUnit}
             </span>
           ) : (
             <div className="flex gap-2 items-center">
@@ -165,11 +196,11 @@ export default function WorkoutProgressRow({
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(Number(e.target.value))}
-                className="w-20 px-2 py-1 text-sm border rounded-md"
+                className="w-20 px-2 py-1.5 text-sm font-bold border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <button
                 onClick={saveWeight}
-                className="text-sm px-2 py-1 rounded-md bg-blue-500 text-white"
+                className="text-xs font-black uppercase tracking-wide px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
               >
                 Save
               </button>
@@ -180,7 +211,8 @@ export default function WorkoutProgressRow({
           {!isEditingReps ? (
             <span
               onClick={() => setIsEditingReps(true)}
-              className="cursor-pointer text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-md"
+              className="cursor-pointer text-xs font-black uppercase tracking-wide px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 transition-all"
+              style={{ letterSpacing: "0.06em" }}
             >
               {reps} reps
             </span>
@@ -190,15 +222,25 @@ export default function WorkoutProgressRow({
                 type="number"
                 value={reps}
                 onChange={(e) => setReps(Number(e.target.value))}
-                className="w-20 px-2 py-1 text-sm border rounded-md"
+                className="w-20 px-2 py-1.5 text-sm font-bold border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <button
                 onClick={saveReps}
-                className="text-sm px-2 py-1 rounded-md bg-blue-500 text-white"
+                className="text-xs font-black uppercase tracking-wide px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
               >
                 Save
               </button>
             </div>
+          )}
+
+          {/* Completed badge */}
+          {isChecked && (
+            <span
+              className="ml-auto text-xs font-black uppercase tracking-widest"
+              style={{ color: "#2563eb", letterSpacing: "0.1em" }}
+            >
+              ✓ Done
+            </span>
           )}
         </div>
       </div>

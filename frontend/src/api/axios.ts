@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000", // your Laravel API URL
+  baseURL: "http://192.168.1.6:8000", // your Laravel API URL
   withCredentials: true,
   withXSRFToken: true, // Add this line
   timeout: 600000,

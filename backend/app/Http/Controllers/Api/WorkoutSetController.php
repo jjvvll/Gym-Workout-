@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\WorkoutSetResource;
 use App\Models\Exercise;
 use App\Models\ExerciseInstance;
+use App\Models\Setting;
 use App\Models\WorkoutLogs;
 use App\Models\WorkoutSet;
 use Illuminate\Http\Request;
@@ -128,6 +129,11 @@ class WorkoutSetController extends Controller
         set_time_limit(600); // allow up to 10 minutes
         ini_set('max_execution_time', 600);
 
+        $setting = Setting::where('user_id', auth()->id())
+            ->where('key', 'weight_unit')
+            ->first();
+        $weightUnit = $setting?->value ?? 'kg';
+
         DB::beginTransaction();
 
         $request->validate([
@@ -158,7 +164,7 @@ class WorkoutSetController extends Controller
         Person details:
         - Experience: {$request->experience}
         - Goal: {$request->goal}
-        - Body weight: {$request->weight}kg
+        - Body weight: {$request->weight}{$weightUnit}
         - Height: {$request->height}cm
         - Effort: {$effort}
 
@@ -167,25 +173,25 @@ class WorkoutSetController extends Controller
         Guidelines:
         - reps should never be 0. Choose reps that make sense for the goal.
         - rest time should make sense for the goal, around {$rest} seconds is a good starting point.
-        - weight_unit is always kg.
+        - weight_unit is always {$weightUnit}.
 
         BODYWEIGHT EXERCISES — this is important:
         Some exercises do not use added weight, like push-ups, pull-ups, dips, bodyweight squats, lunges, planks, burpees, and similar movements.
         For these exercises you must set is_bodyweight_exercise to true on the exercise, and set weight to 0 in all its instances.
-        For all other exercises that use a barbell, dumbbell, cable, or machine, set is_bodyweight_exercise to false and choose a realistic weight in kg.
+        For all other exercises that use a barbell, dumbbell, cable, or machine, set is_bodyweight_exercise to false and choose a realistic weight in {$weightUnit}.
 
         Correct bodyweight exercise example:
         exercise: { name: \"Push-ups\", is_bodyweight_exercise: true, instances: [
-        { weight: 0, weight_unit: \"kg\", reps: 12, sets: 1 },
-        { weight: 0, weight_unit: \"kg\", reps: 12, sets: 1 },
-        { weight: 0, weight_unit: \"kg\", reps: 12, sets: 1 }
+        { weight: 0,  reps: 12, sets: 1 },
+        { weight: 0,  reps: 12, sets: 1 },
+        { weight: 0,  reps: 12, sets: 1 }
         ]}
 
         Correct weighted exercise example:
         exercise: { name: \"Bench Press\", is_bodyweight_exercise: false, instances: [
-        { weight: 60, weight_unit: \"kg\", reps: 10, sets: 1 },
-        { weight: 65, weight_unit: \"kg\", reps: 8, sets: 1 },
-        { weight: 70, weight_unit: \"kg\", reps: 6, sets: 1 }
+        { weight: 60,  reps: 10, sets: 1 },
+        { weight: 65,  reps: 8, sets: 1 },
+        { weight: 70,  reps: 6, sets: 1 }
         ]}
 
         THE ONLY STRICT RULE — instances:
@@ -193,7 +199,7 @@ class WorkoutSetController extends Controller
 
         Wrong structure (only 1 instance — never do this):
         instances: [
-        { weight: 25, weight_unit: \"kg\", reps: 10, sets: 3 }
+        { weight: 25,  reps: 10, sets: 3 }
         ]
 
         This is wrong because there is only 1 instance. There must always be exactly {$sets} instances.
@@ -230,15 +236,15 @@ class WorkoutSetController extends Controller
 
         Example with target_area:
         exercise: { name: \"Bench Press\", is_bodyweight_exercise: false, target_area: \"middle_chest\", instances: [
-        { weight: 60, weight_unit: \"kg\", reps: 10, sets: 1 },
-        { weight: 65, weight_unit: \"kg\", reps: 8, sets: 1 },
-        { weight: 70, weight_unit: \"kg\", reps: 6, sets: 1 }
+        { weight: 60,  reps: 10, sets: 1 },
+        { weight: 65,  reps: 8, sets: 1 },
+        { weight: 70,  reps: 6, sets: 1 }
         ]}
 
         exercise: { name: \"Pull-ups\", is_bodyweight_exercise: true, target_area: \"lats\", instances: [
-        { weight: 0, weight_unit: \"kg\", reps: 10, sets: 1 },
-        { weight: 0, weight_unit: \"kg\", reps: 10, sets: 1 },
-        { weight: 0, weight_unit: \"kg\", reps: 10, sets: 1 }
+        { weight: 0,  reps: 10, sets: 1 },
+        { weight: 0,  reps: 10, sets: 1 },
+        { weight: 0,  reps: 10, sets: 1 }
         ]}
 
         Rules for target_area:
@@ -302,11 +308,10 @@ class WorkoutSetController extends Controller
                                                         'type' => 'object',
                                                         'properties' => [
                                                             'weight' => ['type' => 'integer'],
-                                                            'weight_unit' => ['type' => 'string'],
                                                             'reps' => ['type' => 'integer'],
                                                             'sets' => ['type' => 'integer'],
                                                         ],
-                                                        'required' => ['weight', 'weight_unit', 'reps', 'sets']
+                                                        'required' => ['weight', 'reps', 'sets']
                                                     ]
                                                 ]
                                             ],

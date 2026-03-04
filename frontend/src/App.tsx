@@ -8,12 +8,21 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RegisterPage from "./pages/RegisterPage";
 import { GuestRoute } from "./components/GuestRoute";
 import ReportsPage from "./pages/ReportsPage";
+import SettingsPage from "./pages/SettingsPage";
 
 function App() {
   return (
     <AuthProvider>
       <Toaster position="top-right" reverseOrder={false} />
       <Routes>
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/login"
           element={
