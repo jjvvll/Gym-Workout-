@@ -3,15 +3,20 @@ import { useEffect, useRef } from "react";
 interface RestNotificationProps {
   isVisible: boolean;
   onStop: () => void;
+  soundUrl: string;
 }
 
-const RestNotification = ({ isVisible, onStop }: RestNotificationProps) => {
+const RestNotification = ({
+  isVisible,
+  onStop,
+  soundUrl,
+}: RestNotificationProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (isVisible) {
       // Play alarm when notification appears
-      audioRef.current = new Audio("/sounds/notification-sound.mp3");
+      audioRef.current = new Audio(soundUrl);
       audioRef.current.loop = true; // keep playing until stopped
       audioRef.current.play().catch((err) => console.log("Audio failed:", err));
     } else {

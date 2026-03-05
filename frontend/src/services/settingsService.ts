@@ -3,6 +3,7 @@ import api from "../api/axios";
 
 export type Settings = {
   weight_unit?: "kg" | "lbs";
+  notification_sound?: string; // file URL
   [key: string]: string | undefined;
 };
 
@@ -27,4 +28,24 @@ export const upsertSetting = async (
 ): Promise<SettingsResponse> => {
   const response = await api.post("/api/settings", { key, value });
   return response.data;
+};
+
+export const uploadNotificationSound = async (
+  file: File,
+): Promise<SettingsResponse> => {
+  const formData = new FormData();
+  formData.append("sound", file);
+
+  const response = await api.post("/api/settings/upload-sound", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+};
+
+export const getSoundUrl = (relativePath: string): string => {
+  const base =
+    window.location.hostname === "localhost"
+      ? "http://localhost:8000"
+      : "http://192.168.1.8:8000";
+  return `${base}/${relativePath}`;
 };

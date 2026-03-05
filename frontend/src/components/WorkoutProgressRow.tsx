@@ -6,6 +6,7 @@ import type { setUpdateExercise } from "../services/exerciseService";
 import type { InstanceProgress } from "../hooks/useWorkoutSession";
 import RestNotification from "./RestNotification";
 import { useAuth } from "../context/AuthContext";
+import { getSoundUrl } from "../services/settingsService";
 
 type WorkoutProgressRowProps = {
   exerciseInstance: ExerciseInstance;
@@ -33,6 +34,10 @@ export default function WorkoutProgressRow({
   );
   const { settings } = useAuth();
   const weightUnit = settings.weight_unit ?? "kg";
+
+  const soundUrl = settings.notification_sound
+    ? getSoundUrl(settings.notification_sound)
+    : "/sounds/notification-sound.mp3";
 
   const [showTimer, setShowTimer] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState(restTime);
@@ -120,10 +125,6 @@ export default function WorkoutProgressRow({
   const handleCloseTimer = () => {
     setTimeLeft(restTime);
     setShowTimer(false);
-
-    // play notification sound
-    const audio = new Audio("/sounds/notification-sound.mp3");
-    audio.play().catch((err) => console.log("Audio failed:", err));
   };
 
   const handleStopNotification = () => {
@@ -256,6 +257,7 @@ export default function WorkoutProgressRow({
       <RestNotification
         isVisible={showNotification}
         onStop={handleStopNotification}
+        soundUrl={soundUrl}
       />
     </div>
   );

@@ -59,4 +59,28 @@ class SettingController extends Controller
             'data'    => [$setting->key => $setting->value],
         ]);
     }
+
+    // Add this method to SettingsController.php
+    public function uploadSound(Request $request)
+    {
+        $request->validate([
+            'sound' => 'required|file|mimes:mp3,wav,ogg|max:5120',
+        ]);
+
+        $path = $request->file('sound')->store('sounds', 'public');
+
+        // Use relative path instead of full URL
+        $relativePath = 'storage/' . $path;
+
+        Setting::updateOrCreate(
+            ['user_id' => auth()->id(), 'key' => 'notification_sound'],
+            ['value'   => $relativePath] // save relative path, not full URL
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sound uploaded successfully.',
+            'data'    => ['notification_sound' => $relativePath],
+        ]);
+    }
 }

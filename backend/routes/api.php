@@ -55,4 +55,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/settings',        [SettingController::class, 'index']);
     Route::get('/settings/{key}',  [SettingController::class, 'show']);
     Route::post('/settings',       [SettingController::class, 'upsert']);
+    Route::post('/settings/upload-sound', [SettingController::class, 'uploadSound']);
 });
