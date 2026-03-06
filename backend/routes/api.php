@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ExerciseController;
 use App\Http\Controllers\Api\ExerciseInstanceController;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\WorkoutLogsController;
 use App\Http\Controllers\Api\WorkoutSetController;
@@ -56,4 +57,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/settings/{key}',  [SettingController::class, 'show']);
     Route::post('/settings',       [SettingController::class, 'upsert']);
     Route::post('/settings/upload-sound', [SettingController::class, 'uploadSound']);
+
+    //profile
+    Route::put('/profile/email',    [ProfileController::class, 'updateEmail']);
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
 });
