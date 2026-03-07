@@ -4,251 +4,33 @@ import { useNavigate } from "react-router-dom";
 import {
   uploadNotificationSound,
   getSoundUrl,
+  uploadMotivationPhoto,
 } from "../services/settingsService";
-import { updateEmail, updatePassword } from "../services/profileService";
+import ChangeEmailModal from "../components/ChangeEmailModal";
+import ChangePasswordModal from "../components/ChangePasswordModal";
 
-// --- Change Email Modal ---
-const ChangeEmailModal = ({
-  currentEmail,
-  onClose,
-  onSuccess,
-}: {
-  currentEmail: string;
-  onClose: () => void;
-  onSuccess: (email: string) => void;
-}) => {
-  const [email, setEmail] = useState(currentEmail);
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await updateEmail(email, password);
-      if (response.success) {
-        onSuccess(email);
-        onClose();
-      } else {
-        setError(response.message);
-      }
-    } catch (err: any) {
-      // Axios puts the response body in err.response.data
-      const message = err?.response?.data?.message;
-      setError(message ?? "Failed to update email.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-      <div
-        className="bg-white rounded-xl w-full max-w-sm overflow-hidden"
-        style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}
-      >
-        <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400" />
-        <div className="p-5">
-          <h3
-            className="text-base font-black uppercase text-gray-900 mb-4"
-            style={{ letterSpacing: "0.1em" }}
-          >
-            Change Email
-          </h3>
-
-          <div className="space-y-3">
-            <div>
-              <label
-                className="block text-xs font-black uppercase text-gray-400 mb-1"
-                style={{ letterSpacing: "0.08em" }}
-              >
-                New Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            <div>
-              <label
-                className="block text-xs font-black uppercase text-gray-400 mb-1"
-                style={{ letterSpacing: "0.08em" }}
-              >
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            {error && (
-              <p className="text-xs text-red-500 font-medium">{error}</p>
-            )}
-          </div>
-
-          <div className="flex gap-2 mt-5">
-            <button
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg text-sm font-black uppercase border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all"
-              style={{ letterSpacing: "0.08em" }}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="flex-1 py-2.5 rounded-lg text-sm font-black uppercase text-white transition-all disabled:opacity-50"
-              style={{ background: "#2563eb", letterSpacing: "0.08em" }}
-            >
-              {loading ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- Change Password Modal ---
-const ChangePasswordModal = ({ onClose }: { onClose: () => void }) => {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const handleSubmit = async () => {
-    if (newPassword !== confirmPassword) {
-      setError("New passwords do not match.");
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await updatePassword(
-        currentPassword,
-        newPassword,
-        confirmPassword,
-      );
-      if (response.success) {
-        setSuccess(true);
-        setTimeout(onClose, 1500);
-      } else {
-        setError(response.message);
-      }
-    } catch (err: any) {
-      const message = err?.response?.data?.message;
-      setError(message ?? "Failed to update password.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-      <div
-        className="bg-white rounded-xl w-full max-w-sm overflow-hidden"
-        style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}
-      >
-        <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400" />
-        <div className="p-5">
-          <h3
-            className="text-base font-black uppercase text-gray-900 mb-4"
-            style={{ letterSpacing: "0.1em" }}
-          >
-            Change Password
-          </h3>
-
-          {success ? (
-            <p className="text-sm text-green-500 font-medium text-center py-4">
-              ✓ Password updated!
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {[
-                {
-                  label: "Current Password",
-                  value: currentPassword,
-                  onChange: setCurrentPassword,
-                },
-                {
-                  label: "New Password",
-                  value: newPassword,
-                  onChange: setNewPassword,
-                },
-                {
-                  label: "Confirm Password",
-                  value: confirmPassword,
-                  onChange: setConfirmPassword,
-                },
-              ].map(({ label, value, onChange }) => (
-                <div key={label}>
-                  <label
-                    className="block text-xs font-black uppercase text-gray-400 mb-1"
-                    style={{ letterSpacing: "0.08em" }}
-                  >
-                    {label}
-                  </label>
-                  <input
-                    type="password"
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-              ))}
-              {error && (
-                <p className="text-xs text-red-500 font-medium">{error}</p>
-              )}
-            </div>
-          )}
-
-          <div className="flex gap-2 mt-5">
-            <button
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg text-sm font-black uppercase border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all"
-              style={{ letterSpacing: "0.08em" }}
-            >
-              Cancel
-            </button>
-            {!success && (
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="flex-1 py-2.5 rounded-lg text-sm font-black uppercase text-white transition-all disabled:opacity-50"
-                style={{ background: "#2563eb", letterSpacing: "0.08em" }}
-              >
-                {loading ? "Saving..." : "Save"}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- Main Settings Page ---
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { settings, updateSetting, user } = useAuth();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const audioInputRef = useRef<HTMLInputElement>(null);
   const [soundSaving, setSoundSaving] = useState(false);
   const [soundSaved, setSoundSaved] = useState(false);
   const [soundError, setSoundError] = useState<string | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPreviewing, setIsPreviewing] = useState(false);
+
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoSaving, setPhotoSaving] = useState(false);
+  const [photoSaved, setPhotoSaved] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [isPhotoOpen, setIsPhotoOpen] = useState(false);
+
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentEmail, setCurrentEmail] = useState(user?.email ?? "");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPreviewing, setIsPreviewing] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -311,6 +93,34 @@ const SettingsPage = () => {
       setIsPreviewing(false);
       previewAudioRef.current = null;
     };
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoSaving(true);
+    setPhotoError(null);
+    try {
+      const response = await uploadMotivationPhoto(file);
+      if (response.success) {
+        await updateSetting(
+          "motivation_photo", // correct key
+          response.data.motivation_photo ?? "",
+        );
+        setPhotoSaved(true);
+        setTimeout(() => setPhotoSaved(false), 2000);
+      }
+    } catch (err: unknown) {
+      const message = (err as any)?.response?.data?.message;
+      setPhotoError(message ?? "Failed to upload photo.");
+    } finally {
+      setPhotoSaving(false);
+    }
+  };
+
+  // handlePreviewPhoto — opens image in a simple modal
+  const handlePreviewPhoto = () => {
+    setIsPhotoOpen((prev) => !prev);
   };
 
   return (
@@ -500,14 +310,14 @@ const SettingsPage = () => {
                 )}
 
                 <input
-                  ref={fileInputRef}
+                  ref={audioInputRef}
                   type="file"
                   accept=".mp3,.wav,.ogg"
                   onChange={handleSoundUpload}
                   className="hidden"
                 />
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => audioInputRef.current?.click()}
                   disabled={soundSaving}
                   className="w-full py-2.5 rounded-lg text-sm font-black uppercase tracking-wide border border-dashed border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50"
                   style={{ letterSpacing: "0.08em" }}
@@ -523,6 +333,87 @@ const SettingsPage = () => {
                 {soundError && (
                   <p className="text-xs text-red-500 font-medium mt-2">
                     {soundError}
+                  </p>
+                )}
+              </div>
+
+              {/* Motivation Photo */}
+              <div>
+                <label
+                  className="block text-xs font-black uppercase text-gray-400 mb-3"
+                  style={{ letterSpacing: "0.1em" }}
+                >
+                  Motivation Photo
+                </label>
+
+                {settings.motivation_photo ? (
+                  <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                    {/* Use image icon instead of music icon */}
+                    <svg
+                      className="w-4 h-4 text-blue-500 shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span className="text-xs text-gray-500 flex-1 truncate">
+                      {settings.motivation_photo.split("/").pop()}
+                    </span>
+                    <button
+                      onClick={handlePreviewPhoto}
+                      className="text-xs font-bold text-blue-500 hover:text-blue-600 shrink-0"
+                    >
+                      {isPhotoOpen ? "■ Close" : "▶ Preview"}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 mb-3">
+                    No motivation photo set.
+                  </p>
+                )}
+
+                {/* Photo preview */}
+                {isPhotoOpen && settings.motivation_photo && (
+                  <div className="mb-3 rounded-lg overflow-hidden border border-gray-200">
+                    <img
+                      src={getSoundUrl(settings.motivation_photo)}
+                      alt="Motivation"
+                      className="w-full object-cover max-h-48"
+                    />
+                  </div>
+                )}
+
+                {/* Use separate photoInputRef */}
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={photoSaving}
+                  className="w-full py-2.5 rounded-lg text-sm font-black uppercase tracking-wide border border-dashed border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50"
+                  style={{ letterSpacing: "0.08em" }}
+                >
+                  {photoSaving ? "Uploading..." : "⬆ Upload Photo"}
+                </button>
+
+                {photoSaved && (
+                  <p className="text-xs text-green-500 font-medium mt-2">
+                    ✓ Photo saved
+                  </p>
+                )}
+                {photoError && (
+                  <p className="text-xs text-red-500 font-medium mt-2">
+                    {photoError}
                   </p>
                 )}
               </div>
